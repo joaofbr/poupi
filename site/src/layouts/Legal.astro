@@ -1,0 +1,45 @@
+---
+import Base from './Base.astro'
+import Nav from '../components/sections/Nav.astro'
+import Footer from '../components/sections/Footer.astro'
+import { LEGAL_UPDATED } from '../data/site'
+
+interface Props {
+  title: string
+  description: string
+  lede: string
+  sections: { id: string; label: string }[]
+}
+
+const { title, description, lede, sections } = Astro.props
+---
+
+<Base title={`${title} · Poupi`} description={description}>
+  <Nav />
+  <main id="conteudo" tabindex="-1" class="legal">
+    <div class="wrap">
+      <header class="legal-head">
+        <span class="kicker">Legal</span>
+        <h1 class="display">{title}</h1>
+        <p>{lede}</p>
+        <p class="legal-meta">Última atualização: {LEGAL_UPDATED} · Versão do beta</p>
+      </header>
+      <div class="legal-grid">
+        <nav class="legal-toc" aria-label="Nesta página">
+          <span class="legal-toc-title">Nesta página</span>
+          {sections.map((section) => <a href={`#${section.id}`}>{section.label}</a>)}
+        </nav>
+        <details class="legal-toc-mobile">
+          <summary>Nesta página</summary>
+          <nav aria-label="Nesta página">
+            {sections.map((section) => <a href={`#${section.id}`}>{section.label}</a>)}
+          </nav>
+        </details>
+        <article class="prose">
+          <slot />
+        </article>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>

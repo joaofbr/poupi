@@ -1,0 +1,18 @@
+---
+import Icon from '../Icon.astro'
+import { LINKS } from '../../data/site'
+---
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="/" aria-label="Poupi, início"><Icon name="mark" />poupi</a>
+    <nav class="nav-links" aria-label="Seções">
+      <a href="/#mes">Como funciona</a>
+      <a href="/#familia">Família</a>
+      <a href="/#seguranca">Segurança</a>
+      <a href="/#perguntas">Perguntas</a>
+    </nav>
+    <a class="btn btn-ghost btn-enter" href={LINKS.login}>Entrar</a>
+    <a class="btn btn-primary" href={LINKS.register}>Pedir acesso</a>
+  </div>
+</header>

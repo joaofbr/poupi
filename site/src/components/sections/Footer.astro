@@ -1,0 +1,78 @@
+---
+import Icon from '../Icon.astro'
+import { CONTACT_EMAIL, LINKS } from '../../data/site'
+
+interface Item {
+  label: string
+  href?: string
+  pending?: string
+}
+
+const year = 2026
+const groups: { title: string; items: Item[] }[] = [
+  {
+    title: 'Produto',
+    items: [
+      { label: 'Lançar rápido', href: '/#topo' },
+      { label: 'Cartão de crédito', href: '/#cartao' },
+      { label: 'Plano família', href: '/#familia' },
+      { label: 'Pra onde vai o dinheiro', href: '/#fechamento' },
+      { label: 'Vira app no celular', href: '/#app' },
+    ],
+  },
+  {
+    title: 'Suporte',
+    items: [
+      { label: 'Perguntas frequentes', href: '/#perguntas' },
+      CONTACT_EMAIL
+        ? { label: 'Fale com a gente', href: `mailto:${CONTACT_EMAIL}` }
+        : { label: 'Fale com a gente', pending: 'e-mail a definir' },
+      { label: 'Entrar na conta', href: LINKS.login },
+      { label: 'Esqueci minha senha', href: LINKS.forgot },
+    ],
+  },
+  {
+    title: 'Legal',
+    items: [
+      { label: 'Termos de uso', href: LINKS.terms },
+      { label: 'Política de privacidade', href: LINKS.privacy },
+      { label: 'LGPD: seus direitos', href: LINKS.rights },
+      { label: 'Encarregado de dados', href: LINKS.dpo },
+      { label: 'Segurança', href: '/#seguranca' },
+    ],
+  },
+]
+---
+
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/" aria-label="Poupi, voltar ao início"><Icon name="mark" />poupi</a>
+        <p>Controle financeiro pessoal e da família. Cada real no lugar certo.</p>
+        <p class="foot-safe">Não pedimos a senha do seu banco. Cada conta enxerga só os próprios dados.</p>
+        <a class="btn btn-primary" href={LINKS.register}>Pedir acesso ao beta</a>
+      </div>
+      {groups.map((group) => (
+        <nav aria-label={group.title}>
+          <h3>{group.title}</h3>
+          <ul>
+            {group.items.map((item) => (
+              <li>
+                {item.pending ? (
+                  <span class="soon">{item.label} <small>{item.pending}</small></span>
+                ) : (
+                  <a href={item.href}>{item.label}</a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))}
+    </div>
+    <div class="foot-bottom">
+      <span>© {year} Poupi. Todos os direitos reservados.</span>
+      <span class="foot-made">Feito no Brasil</span>
+    </div>
+  </div>
+</footer>

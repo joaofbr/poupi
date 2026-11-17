@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro'
+import Nav from '../components/sections/Nav.astro'
+import Hero from '../components/sections/Hero.astro'
+import Problem from '../components/sections/Problem.astro'
+import Month from '../components/sections/Month.astro'
+import Family from '../components/sections/Family.astro'
+import CardBill from '../components/sections/CardBill.astro'
+import MonthClose from '../components/sections/MonthClose.astro'
+import Trust from '../components/sections/Trust.astro'
+import InstallApp from '../components/sections/InstallApp.astro'
+import Faq from '../components/sections/Faq.astro'
+import FinalCta from '../components/sections/FinalCta.astro'
+import Footer from '../components/sections/Footer.astro'
+---
+
+<Base scenes>
+  <Nav />
+  <main id="conteudo" tabindex="-1">
+    <Hero />
+    <Problem />
+    <Month />
+    <Family />
+    <CardBill />
+    <MonthClose />
+    <Trust />
+    <InstallApp />
+    <Faq />
+    <FinalCta />
+  </main>
+  <Footer />
+  <script>
+    import { startScenes } from '../scripts/scenes'
+    startScenes()
+  </script>
+</Base>

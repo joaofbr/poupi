@@ -1,0 +1,63 @@
+---
+import Icon from '../Icon.astro'
+import Calendar from '../Calendar.astro'
+import Phone from '../app/Phone.astro'
+import AppHeader from '../app/AppHeader.astro'
+import AppNav from '../app/AppNav.astro'
+import MonthPill from '../app/MonthPill.astro'
+import Row from '../app/Row.astro'
+import { CARD, NEXT_MONTH_LABEL, billTotal, brl, entry, monthTotals } from '../../data/story'
+
+const market = entry('mercado-cartao')
+const uber = entry('uber')
+const fullBill = billTotal('dezembro', 15)
+const november = monthTotals(12)
+const billDates = `Fecha 0${CARD.closingDay}/12 · vence ${CARD.dueDay}/12`
+---
+
+<section class="scene scene-pinned scene-cal card-bill" id="cartao" aria-labelledby="card-title" data-scene="card">
+  <div class="wrap scene-inner" data-root>
+    <Calendar today={15} />
+    <div class="story">
+      <h2 class="sr-only-text" id="card-title">Cartão de crédito e fatura</h2>
+      <div class="panel on" data-panel="a">
+        <span class="kicker">Dia 12 · Cartão de crédito</span>
+        <h3 class="display">Comprou depois do fechamento? Fica pra próxima.</h3>
+        <p>A compra fica com a data real, 12/11, mas entra na fatura de dezembro, quando você paga. O saldo de novembro segue em {brl(november.balance)}.</p>
+      </div>
+      <div class="panel" data-panel="b">
+        <span class="kicker">Dia 15</span>
+        <h3 class="display">E o uber lá do começo.</h3>
+        <p>Aquele <q>uber 25 ontem nubank</q> entrou na mesma fatura. A de dezembro já soma {brl(fullBill)}, e você vê isso antes de ela fechar.</p>
+      </div>
+    </div>
+    <div class="stage" data-el="stage">
+      <Phone label={`Transações de dezembro no Poupi: fatura do ${CARD.name} com ${brl(fullBill)}, com o mercado de 12/11 e o uber de 15/11`} data-el="phone">
+        <AppHeader title="Transações" />
+        <div class="a-body">
+          <MonthPill label={NEXT_MONTH_LABEL} />
+          <div class="a-filters"><span>Tipo: todos</span><span>De quem: todos</span><span>Pagamento: todos</span></div>
+          <div class="a-section-label">Faturas de dezembro 2026</div>
+          <div class="a-card a-bill" data-el="bill">
+            <span class="ic"><Icon name="card" /></span>
+            <span class="t"><b>{CARD.name}</b><small>{billDates}</small></span>
+            <span class="v" data-el="bill-total">{brl(fullBill)}</span>
+          </div>
+          <div class="a-card a-list">
+            <div class="a-list-head">Lançamentos de dezembro</div>
+            <div class="a-rows-box">
+              <div class="grow" data-el="uber-row"><Row entry={uber} avatars /></div>
+              <div class="grow" data-el="market-row"><Row entry={market} avatars /></div>
+            </div>
+          </div>
+        </div>
+        <AppNav active="transacoes" />
+      </Phone>
+      <div class="chip glass side-chip" data-el="chip">
+        <small>{CARD.name} · fatura de dezembro</small>
+        <span><span data-el="chip-total">{brl(fullBill)}</span> até agora</span>
+        <small class="plain">{billDates.toLowerCase()}</small>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  label: string
+  id?: string
+  class?: string
+  [key: `data-${string}`]: string | undefined
+}
+
+const { label, id, class: className, ...rest } = Astro.props
+---
+
+<div class:list={['iphone', className]} id={id} {...rest}>
+  <i class="side power"></i><i class="side action"></i><i class="side vol1"></i><i class="side vol2"></i>
+  <div class="screen">
+    <div class="island"></div>
+    <div class="app" role="img" aria-label={label}>
+      <div class="a-status">
+        <span>9:41</span>
+        <span>
+          <svg viewBox="0 0 36 14" width="20" height="13" aria-hidden="true"><use href="#i-signal" /></svg>
+          <svg viewBox="0 0 30 14" width="27" height="13" aria-hidden="true"><use href="#i-battery" /></svg>
+        </span>
+      </div>
+      <slot />
+    </div>
+    <div class="glare"></div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+---
+import Icon from '../Icon.astro'
+import { brl } from '../../data/story'
+
+interface Props {
+  income: number
+  expense: number
+  balance: number
+}
+
+const { income, expense, balance } = Astro.props
+---
+
+<div class="a-sum">
+  <div class="a-card wide">
+    <div class="a-label"><i style="background:var(--a-chip);color:var(--a-text2)"><Icon name="card" /></i>Saldo do mês</div>
+    <div class:list={['a-big wide-num', balance < 0 ? 'neg' : 'pos']} data-el="saldo">{brl(balance)}</div>
+  </div>
+  <div class="a-card">
+    <div class="a-label"><i style="background:var(--a-income-bg);color:var(--a-income)"><Icon name="up" /></i>Receitas</div>
+    <div class="a-big pos" data-el="receitas">{brl(income)}</div>
+  </div>
+  <div class="a-card">
+    <div class="a-label"><i style="background:var(--a-expense-bg);color:var(--a-expense)"><Icon name="down" /></i>Despesas</div>
+    <div class="a-big neg" data-el="despesas">{brl(expense)}</div>
+  </div>
+</div>

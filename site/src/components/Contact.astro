@@ -1,0 +1,9 @@
+---
+import { CONTACT_EMAIL } from '../data/site'
+---
+
+{CONTACT_EMAIL ? (
+  <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+) : (
+  <span class="soon">e-mail de contato <small>a definir</small></span>
+)}

@@ -1,0 +1,53 @@
+---
+const questions = [
+  {
+    q: 'Quanto custa?',
+    a: 'Nada durante o beta. Se um dia houver cobrança, avisamos antes, com tempo para você decidir.',
+  },
+  {
+    q: 'Por que preciso pedir acesso?',
+    a: 'O Poupi está em beta fechado. Você faz o cadastro, a gente libera a conta e avisa por e-mail. Depois disso é só entrar.',
+  },
+  {
+    q: 'O Poupi se conecta ao meu banco?',
+    a: 'Não. Você lança os gastos escrevendo, do seu jeito, e o Poupi organiza. Não pedimos senha de banco nem acesso à sua conta.',
+  },
+  {
+    q: 'Como ele entende o que eu escrevo?',
+    a: 'Por regras, sem inteligência artificial: ele procura o valor, a data, o cartão, quem pagou e a categoria. Com o tempo, aprende com o histórico da sua família. E nada é salvo sem você conferir.',
+  },
+  {
+    q: 'E o cartão de crédito?',
+    a: 'Cadastre o cartão com o dia de fechamento e o de vencimento. Cada compra cai na fatura certa, inclusive as parceladas, e o mês mostra o que você realmente paga nele.',
+  },
+  {
+    q: 'Dá para usar com a família?',
+    a: 'Dá. No plano família, cada pessoa tem o próprio acesso, os gastos podem ser divididos e o relatório mostra quanto cada um gastou. Você pode começar sozinho e convidar depois.',
+  },
+  {
+    q: 'Preciso instalar alguma coisa?',
+    a: 'Não. O Poupi abre no navegador, no computador ou no celular. No celular, dá para adicionar à tela inicial e usar como app.',
+  },
+  {
+    q: 'Meus dados ficam seguros?',
+    a: 'Cada conta enxerga só os próprios dados, a senha é guardada com hash e a conexão é sempre criptografada. O texto do lançamento rápido é lido no nosso servidor e não vai para terceiros.',
+  },
+]
+---
+
+<section class="faq block" id="perguntas" aria-labelledby="faq-title">
+  <div class="wrap faq-grid">
+    <div class="block-head">
+      <span class="kicker">Perguntas frequentes</span>
+      <h2 class="display" id="faq-title">Antes de pedir acesso.</h2>
+    </div>
+    <div class="faq-list">
+      {questions.map((item) => (
+        <details>
+          <summary><span>{item.q}</span><i aria-hidden="true"></i></summary>
+          <p>{item.a}</p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

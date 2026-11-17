@@ -1,0 +1,12 @@
+---
+interface Props {
+  name: string
+  class?: string
+  width?: number
+}
+
+const { name, class: className, width } = Astro.props
+const id = name === 'mark' ? 'mark' : `i-${name}`
+---
+
+<svg class={className} width={width} aria-hidden="true" focusable="false"><use href={`#${id}`} /></svg>

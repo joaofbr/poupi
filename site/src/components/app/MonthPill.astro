@@ -1,0 +1,16 @@
+---
+import Icon from '../Icon.astro'
+import { MONTH_LABEL } from '../../data/story'
+
+interface Props {
+  label?: string
+}
+
+const { label = MONTH_LABEL } = Astro.props
+---
+
+<div class="a-month">
+  <Icon name="left" />
+  <span><Icon name="calendar" />{label}</span>
+  <Icon name="right" />
+</div>

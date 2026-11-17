@@ -1,0 +1,256 @@
+---
+import Legal from '../layouts/Legal.astro'
+import Contact from '../components/Contact.astro'
+import { LINKS, OWNER_NAME } from '../data/site'
+
+const sections = [
+  { id: 'resumo', label: 'Em resumo' },
+  { id: 'controlador', label: 'Quem cuida dos seus dados' },
+  { id: 'encarregado', label: 'Encarregado e canal de contato' },
+  { id: 'dados', label: 'Quais dados tratamos' },
+  { id: 'finalidades', label: 'Para que usamos' },
+  { id: 'familia', label: 'Dados dentro da família' },
+  { id: 'compartilhamento', label: 'Com quem compartilhamos' },
+  { id: 'transferencia', label: 'Transferência internacional' },
+  { id: 'retencao', label: 'Por quanto tempo guardamos' },
+  { id: 'seguranca', label: 'Segurança' },
+  { id: 'seus-direitos', label: 'Seus direitos' },
+  { id: 'navegador', label: 'Cookies e navegador' },
+  { id: 'menores', label: 'Crianças e adolescentes' },
+  { id: 'mudancas', label: 'Mudanças nesta política' },
+]
+
+const purposes = [
+  {
+    what: 'Criar e manter sua conta, guardar seus lançamentos e calcular saldo, faturas e relatórios.',
+    basis: 'Execução do contrato (art. 7º, V)',
+  },
+  {
+    what: 'Analisar e liberar cadastros do beta e enviar os e-mails da conta: liberação, recusa, convite e troca de senha.',
+    basis: 'Execução do contrato e procedimentos preliminares a ele (art. 7º, V)',
+  },
+  {
+    what: 'Enviar o convite para quem um administrador indicou no plano família.',
+    basis: 'Legítimo interesse (art. 7º, IX), com a opção de recusar o convite',
+  },
+  {
+    what: 'Proteger o serviço: conferir a sessão a cada acesso, limitar tentativas e bloquear abusos.',
+    basis: 'Legítimo interesse (art. 7º, IX)',
+  },
+  {
+    what: 'Cumprir obrigações legais, atender autoridades e nos defender em processos.',
+    basis: 'Obrigação legal e exercício regular de direitos (art. 7º, II e VI)',
+  },
+]
+---
+
+<Legal
+  title="Política de privacidade"
+  description="Quais dados pessoais o Poupi trata, para quê, com quem compartilha, por quanto tempo guarda e como você exerce seus direitos pela LGPD."
+  lede="Esta política explica quais dados pessoais o Poupi trata, para quê, com quem compartilha e como você exerce os seus direitos, de acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018, a LGPD)."
+  sections={sections}
+>
+  <section id="resumo" class="legal-summary">
+    <h2>Em resumo</h2>
+    <ul>
+      <li>Guardamos só o necessário para o app funcionar: o seu cadastro e o que você lança.</li>
+      <li>Não pedimos senha de banco, CPF nem dados bancários. Não vendemos dados e não mostramos anúncios.</li>
+      <li>No plano família, o que é lançado na família fica visível para os integrantes dela.</li>
+      <li>Você pode pedir acesso, correção, cópia ou exclusão dos seus dados quando quiser.</li>
+    </ul>
+  </section>
+
+  <section id="controlador">
+    <h2>Quem cuida dos seus dados</h2>
+    <p>
+      O controlador dos dados pessoais tratados no Poupi, ou seja, quem decide como eles são usados, é a pessoa física que
+      mantém o serviço{OWNER_NAME && <>, <strong>{OWNER_NAME}</strong></>}. Contato: <Contact />.
+    </p>
+  </section>
+
+  <section id="encarregado">
+    <h2>Encarregado e canal de contato</h2>
+    <p>
+      O canal do encarregado pelo tratamento de dados pessoais é <Contact />. É por ele que você tira dúvidas sobre esta política,
+      faz pedidos sobre os seus dados e envia reclamações. Respondemos em até 15 dias.
+    </p>
+  </section>
+
+  <section id="dados">
+    <h2>Quais dados tratamos</h2>
+    <ul>
+      <li>
+        <strong>Cadastro:</strong> nome, e-mail e senha. A senha é guardada só em versão cifrada (hash), que não permite
+        recuperá-la. Também guardamos a cor do seu avatar, o seu papel na família (administrador ou integrante) e as datas de
+        criação e de liberação da conta.
+      </li>
+      <li>
+        <strong>O que você lança:</strong> descrição, valor, data, mês da fatura, categoria, cartão, quem pagou ou como o valor
+        foi dividido, repetições e parcelas. Dos cartões, o nome que você deu, o dia de fechamento, o dia de vencimento e o dono.
+        As categorias que você cria.
+      </li>
+      <li>
+        <strong>Convites:</strong> o nome e o e-mail que um administrador informa ao convidar alguém para a família.
+      </li>
+      <li>
+        <strong>Uso do app:</strong> marcações do primeiro acesso, como se você já viu as boas-vindas, para não repetir telas.
+      </li>
+      <li>
+        <strong>Sessão e segurança:</strong> os códigos da sua sessão e o endereço IP de cada acesso, usado na hora para limitar
+        tentativas e bloquear abusos. Os provedores de hospedagem também mantêm registros técnicos de acesso, por pouco tempo.
+      </li>
+    </ul>
+    <p>
+      O texto do <strong>lançamento rápido</strong> é lido no nosso servidor, por regras e sem inteligência artificial, só para
+      montar o rascunho. Ele não é guardado nem enviado a terceiros: só o lançamento que você confirmar é salvo.
+    </p>
+    <p>
+      Não pedimos dados sensíveis. Evite escrever nos lançamentos informações que você não queira guardar, como detalhes de saúde.
+    </p>
+  </section>
+
+  <section id="finalidades">
+    <h2>Para que usamos e com qual base legal</h2>
+    <div class="legal-table" role="table" aria-label="Finalidades e bases legais">
+      <div class="legal-row legal-row-head" role="row">
+        <span role="columnheader">Para quê</span>
+        <span role="columnheader">Base legal na LGPD</span>
+      </div>
+      {purposes.map((item) => (
+        <div class="legal-row" role="row">
+          <span role="cell">{item.what}</span>
+          <span role="cell">{item.basis}</span>
+        </div>
+      ))}
+    </div>
+    <p>
+      Não usamos os seus dados para publicidade, não os vendemos e não montamos perfis para outras empresas. Os e-mails que
+      enviamos são sobre a sua conta, não propaganda.
+    </p>
+  </section>
+
+  <section id="familia">
+    <h2>Dados dentro da família</h2>
+    <p>
+      No plano família, todos os integrantes ativos veem os lançamentos, cartões, categorias e relatórios da família, inclusive
+      quem lançou cada gasto. Ao aceitar um convite, você passa a ver os dados dessa família e ela passa a ver o que você lança
+      nela. Cada família é isolada: nenhuma outra conta enxerga esses dados.
+    </p>
+    <p>
+      No painel de administração do Poupi aparecem só dados da conta, como nome e e-mail do titular, plano, situação e número de
+      integrantes, além de números gerais do serviço. Os seus lançamentos não aparecem ali.
+    </p>
+  </section>
+
+  <section id="compartilhamento">
+    <h2>Com quem compartilhamos</h2>
+    <p>
+      Só com as empresas que nos ajudam a operar o serviço. Elas tratam os dados em nosso nome, para essa finalidade:
+    </p>
+    <ul>
+      <li><strong>Render</strong>: hospedagem do servidor do app.</li>
+      <li><strong>Neon</strong>: banco de dados.</li>
+      <li><strong>Cloudflare</strong>: hospedagem deste site e das telas do app.</li>
+      <li><strong>Brevo</strong>: envio dos e-mails da conta.</li>
+    </ul>
+    <p>Também podemos compartilhar dados quando a lei exigir ou por ordem de autoridade competente.</p>
+  </section>
+
+  <section id="transferencia">
+    <h2>Transferência internacional</h2>
+    <p>
+      Esses provedores podem guardar e processar dados em servidores fora do Brasil, como nos Estados Unidos e na Europa. A
+      transferência acontece porque é necessária para prestar o serviço que você pediu (art. 33, IX, da LGPD), e escolhemos
+      provedores que adotam medidas de segurança e de proteção de dados.
+    </p>
+  </section>
+
+  <section id="retencao">
+    <h2>Por quanto tempo guardamos</h2>
+    <ul>
+      <li><strong>Conta ativa:</strong> enquanto ela existir.</li>
+      <li><strong>Cadastro recusado no beta:</strong> apagado na hora, com tudo o que estava ligado a ele.</li>
+      <li>
+        <strong>Convite não aceito:</strong> quando é recusado ou liberado, o cadastro do convidado é apagado. Se já houver
+        lançamentos ligados a ele, fica só um registro inativo, sem o e-mail, para o histórico da família continuar correto.
+      </li>
+      <li>
+        <strong>Sessões:</strong> o acesso vale por até 24 horas e a renovação por até 30 dias. Sessões vencidas são apagadas.
+        Links de convite e de troca de senha têm validade curta e só funcionam uma vez.
+      </li>
+      <li>
+        <strong>Exclusão a pedido:</strong> se você é o titular, apagamos a conta e todos os dados da família. Se você é integrante
+        de uma família, desativamos o seu acesso e retiramos o seu nome e o seu e-mail; os lançamentos continuam no histórico da
+        família, sem identificar você.
+      </li>
+      <li>
+        <strong>Cópias de segurança:</strong> as cópias automáticas do provedor do banco de dados podem manter dados apagados por
+        um período curto, até serem substituídas.
+      </li>
+    </ul>
+    <p>Podemos guardar o mínimo necessário por mais tempo quando a lei exigir.</p>
+  </section>
+
+  <section id="seguranca">
+    <h2>Segurança</h2>
+    <ul>
+      <li>Senhas guardadas só com hash (PBKDF2) e regras de senha forte.</li>
+      <li>Conexões sempre criptografadas (HTTPS).</li>
+      <li>Cada família só acessa os próprios dados, e cada acesso confere no banco se a sessão ainda vale.</li>
+      <li>Trocar ou redefinir a senha encerra todas as outras sessões abertas.</li>
+      <li>Limite de tentativas para dificultar ataques.</li>
+    </ul>
+    <p>
+      Nenhum sistema é totalmente seguro. Se acontecer um incidente de segurança que possa trazer risco ou dano relevante a você,
+      avisaremos você e a Autoridade Nacional de Proteção de Dados (ANPD), como a LGPD exige.
+    </p>
+  </section>
+
+  <section id="seus-direitos">
+    <h2>Seus direitos</h2>
+    <p>Pela LGPD (art. 18), você pode pedir, a qualquer momento:</p>
+    <ul>
+      <li>confirmação de que tratamos dados seus e acesso a eles;</li>
+      <li>correção de dados incompletos, inexatos ou desatualizados;</li>
+      <li>anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desacordo com a lei;</li>
+      <li>portabilidade: uma cópia dos seus dados em formato estruturado;</li>
+      <li>eliminação dos seus dados e encerramento da conta;</li>
+      <li>informação sobre com quem compartilhamos os seus dados;</li>
+      <li>oposição a um tratamento que você considere irregular.</li>
+    </ul>
+    <p>
+      A senha você mesmo troca no perfil do app. Para corrigir nome ou e-mail, ou para qualquer outro pedido, escreva
+      para <Contact /> a partir do e-mail da sua conta, para confirmarmos que o pedido é seu. Respondemos em até 15 dias. Se não ficar satisfeito, você pode reclamar à
+      ANPD, em <a href="https://www.gov.br/anpd" rel="noopener">gov.br/anpd</a>.
+    </p>
+  </section>
+
+  <section id="navegador">
+    <h2>Cookies e navegador</h2>
+    <p>
+      Este site e o app não usam cookies nem ferramentas de análise ou de publicidade, e as fontes dos dois são servidas por
+      nós mesmos.
+    </p>
+    <p>
+      O app guarda no seu navegador só o necessário para funcionar: os códigos da sua sessão, o tema escolhido (claro ou escuro)
+      e se você já viu ou dispensou o aviso de adicionar à tela inicial. Sair da conta apaga os códigos da sessão.
+    </p>
+  </section>
+
+  <section id="menores">
+    <h2>Crianças e adolescentes</h2>
+    <p>
+      O Poupi é destinado a maiores de 18 anos. Um adolescente só pode participar como integrante do plano família, convidado por
+      um adulto responsável por ele. Não coletamos de propósito dados de crianças; se soubermos que uma criança está usando o
+      serviço sem autorização, apagaremos os dados dela.
+    </p>
+  </section>
+
+  <section id="mudancas">
+    <h2>Mudanças nesta política</h2>
+    <p>
+      Podemos atualizar esta política. Mudanças importantes serão avisadas por e-mail ou no app antes de valerem. A data da
+      última atualização fica no topo desta página. Veja também os <a href={LINKS.terms}>Termos de uso</a>.
+    </p>
+  </section>
+</Legal>

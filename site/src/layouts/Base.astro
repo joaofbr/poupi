@@ -1,0 +1,67 @@
+---
+import '@fontsource-variable/inter/wght.css'
+import '@fontsource-variable/schibsted-grotesk/wght.css'
+import '../styles/global.css'
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
+import schibstedLatin from '@fontsource-variable/schibsted-grotesk/files/schibsted-grotesk-latin-wght-normal.woff2?url'
+import Sprite from '../components/Sprite.astro'
+import { SITE } from '../data/site'
+import { ANIMATED_QUERY } from '../scripts/motion'
+
+interface Props {
+  title?: string
+  description?: string
+  scenes?: boolean
+}
+
+const { title = SITE.title, description = SITE.description, scenes = false } = Astro.props
+const canonical = new URL(Astro.url.pathname, Astro.site).href
+const ogImage = new URL('/og.png', Astro.site).href
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f1f7f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#07140f" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg?v=1" type="image/svg+xml" />
+    <link rel="icon" href="/icon-192.png?v=1" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Poupi" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href={schibstedLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    {scenes && (
+      <script is:inline define:vars={{ query: ANIMATED_QUERY }}>
+        (function () {
+          var root = document.documentElement
+          if (!window.matchMedia || !window.matchMedia(query).matches) return
+          root.classList.add('is-animated')
+          window.setTimeout(function () {
+            if (!window.__poupiScenes) root.classList.remove('is-animated')
+          }, 6000)
+        })()
+      </script>
+    )}
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <Sprite />
+    <div class="backdrop" aria-hidden="true"></div>
+    <slot />
+  </body>
+</html>

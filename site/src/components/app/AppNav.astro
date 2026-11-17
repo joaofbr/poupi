@@ -1,0 +1,25 @@
+---
+import Icon from '../Icon.astro'
+
+interface Props {
+  active: 'inicio' | 'transacoes' | 'relatorios'
+}
+
+const { active } = Astro.props
+const items = [
+  { id: 'inicio', icon: 'grid', label: 'Início' },
+  { id: 'transacoes', icon: 'list', label: 'Transações' },
+  { id: 'relatorios', icon: 'bars', label: 'Relatórios' },
+]
+---
+
+<div class="a-nav">
+  {items.slice(0, 2).map((item) => (
+    <span class:list={{ on: item.id === active }}><Icon name={item.icon} />{item.label}</span>
+  ))}
+  <span><i class="fab"><Icon name="plus" /></i></span>
+  {items.slice(2).map((item) => (
+    <span class:list={{ on: item.id === active }}><Icon name={item.icon} />{item.label}</span>
+  ))}
+  <span><Icon name="more" />Mais</span>
+</div>

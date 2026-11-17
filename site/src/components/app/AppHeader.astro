@@ -1,0 +1,15 @@
+---
+import Icon from '../Icon.astro'
+
+interface Props {
+  title: string
+}
+
+const { title } = Astro.props
+---
+
+<div class="a-header">
+  <Icon name="mark" class="a-mark" />
+  <b>{title}</b>
+  <span class="a-iconbtn"><Icon name="moon" /></span>
+</div>

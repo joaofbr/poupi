@@ -1,0 +1,77 @@
+---
+import Icon from '../Icon.astro'
+import Calendar from '../Calendar.astro'
+import Phone from '../app/Phone.astro'
+import AppHeader from '../app/AppHeader.astro'
+import AppNav from '../app/AppNav.astro'
+import MonthPill from '../app/MonthPill.astro'
+import Summary from '../app/Summary.astro'
+import Row from '../app/Row.astro'
+import { CARD, CATEGORIES, billTotal, brl, entry, monthTotals, visibleOn } from '../../data/story'
+
+const totals = monthTotals(5)
+const rows = visibleOn(5).slice().reverse()
+const salary = entry('salario')
+const salaryCategory = CATEGORIES[salary.category]
+const novemberBill = billTotal('novembro', 5)
+---
+
+<section class="scene scene-pinned scene-cal month" id="mes" aria-labelledby="month-title" data-scene="month">
+  <div class="wrap scene-inner" data-root>
+    <Calendar today={5} skip={{ href: '#familia', label: 'Pular o mês' }} />
+    <div class="story">
+      <h2 class="sr-only-text" id="month-title">Um mês no Poupi</h2>
+      <div class="panel on" data-panel="a">
+        <span class="kicker">Dias 1 a 4</span>
+        <h3 class="display">O mês começa como sempre.</h3>
+        <p>Padaria no pix, cinema e farmácia no cartão, o mercado da semana. Cada gasto entra no dia em que aconteceu.</p>
+      </div>
+      <div class="panel" data-panel="b">
+        <span class="kicker">Dia 5</span>
+        <h3 class="display">O salário caiu.</h3>
+        <p>Você escreve <q>recebi 2800 salário</q> e confere. O saldo do mês já sabe quanto entrou.</p>
+      </div>
+      <div class="panel" data-panel="c">
+        <span class="kicker">Dia 5</span>
+        <h3 class="display">E a fatura do {CARD.name} fechou.</h3>
+        <p>Os {brl(novemberBill)} do cinema e da farmácia ficaram em novembro. Daqui pra frente, cada compra no cartão vai para a fatura de dezembro.</p>
+      </div>
+    </div>
+    <div class="stage" data-el="stage">
+      <Phone label={`Tela inicial do Poupi no dia 5: saldo de ${brl(totals.balance)}, receitas de ${brl(totals.income)} e despesas de ${brl(totals.expense)}`} data-el="phone">
+        <AppHeader title="Dashboard" />
+        <div class="a-body">
+          <MonthPill />
+          <Summary income={totals.income} expense={totals.expense} balance={totals.balance} />
+          <div class="a-card a-list">
+            <div class="a-list-head">Últimas transações<small>Ver todas</small></div>
+            <div class="a-rows-box">
+              {rows.map((item) => <Row entry={item} data-id={item.id} />)}
+            </div>
+          </div>
+        </div>
+        <AppNav active="inicio" />
+        <div class="a-overlay" data-el="overlay"></div>
+        <div class="a-sheet" data-el="sheet">
+          <div class="a-sheet-head">Confirmar lançamento<span><Icon name="x" /></span></div>
+          <div class="a-sheet-body">
+            <div class="a-said"><Icon name="message" />“recebi 2800 salário”</div>
+            <span class="a-kind in">Receita</span>
+            <div class="a-amount pos">{brl(salary.amount)}</div>
+            <div class="a-desc">{salary.title}</div>
+            <dl class="a-rows">
+              <div><dt>Categoria</dt><dd><span class="a-cat"><i style={`background:color-mix(in srgb, ${salaryCategory.color} 16%, var(--a-surface));color:${salaryCategory.color}`}><Icon name={salaryCategory.icon} /></i>{salaryCategory.name}</span></dd></div>
+              <div><dt>Data</dt><dd>Hoje, 5 de nov. de 2026</dd></div>
+            </dl>
+          </div>
+          <div class="a-actions"><span class="adj"><Icon name="pencil" />Ajustar</span><span class="ok"><Icon name="check" />Confirmar</span></div>
+        </div>
+      </Phone>
+      <div class="chip glass side-chip" data-el="chip">
+        <small>{CARD.name} · fatura de novembro</small>
+        <span>Fechada em {brl(novemberBill)}</span>
+        <small class="plain">vence 12/11</small>
+      </div>
+    </div>
+  </div>
+</section>

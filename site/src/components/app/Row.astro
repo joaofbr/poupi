@@ -1,0 +1,31 @@
+---
+import Icon from '../Icon.astro'
+import { CATEGORIES, MEMBERS, brl, rowMeta, signedBrl } from '../../data/story'
+import type { Entry } from '../../data/story'
+
+interface Props {
+  entry: Entry
+  avatars?: boolean
+  share?: number
+  [key: `data-${string}`]: string | number | undefined
+}
+
+const { entry, avatars = false, share, ...rest } = Astro.props
+const category = CATEGORIES[entry.category]
+const shown = share ?? entry.amount
+---
+
+<div class="a-row" {...rest}>
+  <span class="badge" style={`background:color-mix(in srgb, ${category.color} 15%, var(--a-surface));color:${category.color}`}><Icon name={category.icon} /></span>
+  <span class="t">
+    <b>{entry.title}</b>
+    <small>
+      {avatars && entry.members.map((id) => <span class="av" style={`--c:${MEMBERS[id].color}`}>{MEMBERS[id].initials}</span>)}
+      {rowMeta(entry)}
+    </small>
+  </span>
+  <span class:list={['v', shown < 0 ? 'neg' : 'pos']}>
+    {signedBrl(shown)}
+    {shown !== entry.amount && <small>de {brl(Math.abs(entry.amount))}</small>}
+  </span>
+</div>

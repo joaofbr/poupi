@@ -1,0 +1,44 @@
+---
+import { CALENDAR_EVENTS, MONTH_LABEL, pad2, weekday } from '../data/story'
+
+interface Props {
+  today: number
+  skip?: { href: string; label: string }
+}
+
+const { today, skip } = Astro.props
+const days = Array.from({ length: 30 }, (_, i) => i + 1)
+const state = (day: number) => (day < today ? 'past' : day === today ? 'now' : '')
+---
+
+<div class="cal" data-el="cal">
+  <div class="cal-head" aria-hidden="true">{MONTH_LABEL}</div>
+  <div class="cal-days" aria-hidden="true">
+    {days.map((day) => {
+      const event = CALENDAR_EVENTS[day]
+      return (
+        <div class:list={['cal-day', state(day)]} data-day={day}>
+          <b>{pad2(day)}</b>
+          <em>{weekday(day)}</em>
+          <span class="ev">
+            {event?.text}
+            {event?.text && event.highlight && ' · '}
+            {event?.highlight && <span class="gold">{event.highlight}</span>}
+          </span>
+        </div>
+      )
+    })}
+  </div>
+  {skip && <a class="skip" href={skip.href}>{skip.label}</a>}
+</div>
+
+<div class="cal-strip" data-el="strip">
+  <div class="cal-strip-head" aria-hidden="true">
+    <span>{MONTH_LABEL}</span>
+    <b data-el="strip-day">Dia {pad2(today)}</b>
+  </div>
+  <div class="ticks" aria-hidden="true">
+    {days.map((day) => <i class={state(day)} data-day={day}></i>)}
+  </div>
+  {skip && <a class="skip" href={skip.href}>{skip.label}</a>}
+</div>

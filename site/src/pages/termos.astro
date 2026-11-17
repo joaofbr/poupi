@@ -1,0 +1,178 @@
+---
+import Legal from '../layouts/Legal.astro'
+import Contact from '../components/Contact.astro'
+import { APP_URL, LINKS, OWNER_NAME } from '../data/site'
+
+const sections = [
+  { id: 'quem-somos', label: 'Quem oferece o Poupi' },
+  { id: 'o-que-e', label: 'O que o Poupi é e o que não é' },
+  { id: 'beta', label: 'Beta fechado' },
+  { id: 'preco', label: 'Preço' },
+  { id: 'conta', label: 'Sua conta' },
+  { id: 'familia', label: 'Plano família' },
+  { id: 'uso', label: 'Uso permitido' },
+  { id: 'seus-dados', label: 'Seus dados' },
+  { id: 'encerramento', label: 'Encerramento' },
+  { id: 'responsabilidade', label: 'Responsabilidade' },
+  { id: 'mudancas', label: 'Mudanças nestes termos' },
+  { id: 'lei', label: 'Lei aplicável e foro' },
+  { id: 'contato', label: 'Contato' },
+]
+---
+
+<Legal
+  title="Termos de uso"
+  description="As regras para usar o Poupi durante o beta: conta, plano família, uso permitido, preço e encerramento."
+  lede="Estes termos valem para quem usa o Poupi. Ao criar uma conta ou usar o serviço, você concorda com eles. A Política de privacidade explica o que fazemos com os seus dados."
+  sections={sections}
+>
+  <section id="quem-somos">
+    <h2>Quem oferece o Poupi</h2>
+    <p>
+      O Poupi é um serviço de controle financeiro pessoal e da família, disponível em <a href={APP_URL}>{APP_URL.replace('https://', '')}</a>.
+      Ele é mantido por pessoa física{OWNER_NAME && <>, <strong>{OWNER_NAME}</strong></>}, ainda sem empresa constituída. Quando houver,
+      estes termos serão atualizados com a razão social e o CNPJ.
+    </p>
+    <p>Para falar com a gente: <Contact />.</p>
+  </section>
+
+  <section id="o-que-e">
+    <h2>O que o Poupi é e o que não é</h2>
+    <p>
+      O Poupi é uma ferramenta para organizar receitas, despesas, cartões de crédito e o orçamento da casa a partir do
+      que <strong>você</strong> lança, escrevendo ou preenchendo os formulários.
+    </p>
+    <ul>
+      <li>Ele <strong>não se conecta a bancos</strong>, não movimenta dinheiro e não faz pagamentos.</li>
+      <li>Ele <strong>não oferece</strong> consultoria financeira, de investimentos, contábil ou tributária.</li>
+      <li>
+        Saldos, faturas e relatórios são calculados a partir do que foi lançado. Confira valores, datas de fechamento e de
+        vencimento com o seu banco ou com a administradora do cartão.
+      </li>
+      <li>O lançamento rápido monta um rascunho a partir do que você escreveu. Nada é salvo sem você conferir e confirmar.</li>
+    </ul>
+  </section>
+
+  <section id="beta">
+    <h2>Beta fechado</h2>
+    <p>
+      O Poupi está em fase de testes. Para usar, você faz o cadastro e aguarda a liberação da conta, que avisamos por e-mail.
+      Podemos aprovar ou recusar pedidos de acesso. Se o pedido for recusado, o cadastro e tudo o que estiver ligado a ele são
+      apagados.
+    </p>
+    <p>
+      Por ser um beta, o serviço pode mudar, ficar fora do ar, apresentar erros ou ganhar e perder funcionalidades. Fazemos o
+      possível para não perder dados, mas recomendamos não usar o Poupi como o único lugar onde ficam informações importantes
+      para você.
+    </p>
+  </section>
+
+  <section id="preco">
+    <h2>Preço</h2>
+    <p>
+      O Poupi é <strong>gratuito durante o beta</strong>. Se um dia passarmos a cobrar pelo serviço ou por algum recurso dele,
+      avisaremos antes, por e-mail e no próprio app, com antecedência e com as condições por escrito. Você poderá decidir se
+      continua. Nenhuma cobrança será feita sem a sua concordância.
+    </p>
+  </section>
+
+  <section id="conta">
+    <h2>Sua conta</h2>
+    <ul>
+      <li>Cada pessoa tem a própria conta, ligada a um e-mail. Um e-mail só pode estar em uma conta.</li>
+      <li>Informe dados verdadeiros e mantenha o seu e-mail atualizado: é por ele que você recupera o acesso.</li>
+      <li>
+        O Poupi é destinado a pessoas com 18 anos ou mais. Menores de idade só podem usar como integrantes do plano família,
+        convidados por um adulto responsável por eles.
+      </li>
+      <li>
+        Guarde a senha em sigilo. O que for feito com o seu e-mail e a sua senha é de sua responsabilidade. Se perceber uso
+        indevido, troque a senha (isso encerra as outras sessões abertas) e nos avise.
+      </li>
+    </ul>
+  </section>
+
+  <section id="familia">
+    <h2>Plano família</h2>
+    <p>
+      No plano família, a conta vira um espaço compartilhado: os lançamentos, cartões, categorias e relatórios da família
+      ficam visíveis para todos os integrantes ativos.
+    </p>
+    <ul>
+      <li>
+        Administradores convidam integrantes por e-mail, desativam integrantes e mudam papéis. Ninguém altera o próprio papel
+        nem o próprio acesso.
+      </li>
+      <li>
+        Convide só quem concordou em participar. Ao convidar, você nos informa o nome e o e-mail da pessoa, e o convite diz quem
+        convidou. Quem recebe pode recusar.
+      </li>
+      <li>
+        Um integrante que já fez lançamentos não é excluído, só desativado, para o histórico da família continuar correto.
+      </li>
+      <li>A família precisa ter sempre pelo menos um administrador ativo.</li>
+    </ul>
+  </section>
+
+  <section id="uso">
+    <h2>Uso permitido</h2>
+    <p>Ao usar o Poupi, você se compromete a não:</p>
+    <ul>
+      <li>usar o serviço para atividades ilegais ou para registrar dinheiro de origem ilícita;</li>
+      <li>tentar acessar contas, dados ou sistemas de outras pessoas;</li>
+      <li>testar, sobrecarregar ou contornar limites e proteções do serviço sem autorização;</li>
+      <li>criar contas ou enviar convites de forma automatizada ou em massa;</li>
+      <li>convidar pessoas que não conhece ou que não pediram para participar.</li>
+    </ul>
+    <p>Podemos suspender ou encerrar contas que descumprirem estes termos, avisando quando for possível.</p>
+  </section>
+
+  <section id="seus-dados">
+    <h2>Seus dados</h2>
+    <p>
+      O que você lança no Poupi é seu. Você nos autoriza a guardar e processar essas informações apenas para fazer o serviço
+      funcionar: mostrar, calcular, organizar e proteger. Não vendemos seus dados e não os usamos para publicidade. Os detalhes
+      estão na <a href={LINKS.privacy}>Política de privacidade</a>.
+    </p>
+  </section>
+
+  <section id="encerramento">
+    <h2>Encerramento</h2>
+    <p>
+      Você pode pedir o encerramento da sua conta a qualquer momento pelo contato no fim desta página. O que acontece com os dados
+      está em <a href={`${LINKS.privacy}#retencao`}>Por quanto tempo guardamos</a>, na Política de privacidade.
+    </p>
+    <p>
+      Se decidirmos encerrar o beta ou o serviço, avisaremos por e-mail com antecedência e você poderá pedir uma cópia dos seus
+      lançamentos antes do encerramento.
+    </p>
+  </section>
+
+  <section id="responsabilidade">
+    <h2>Responsabilidade</h2>
+    <p>
+      Trabalhamos para manter o Poupi seguro e funcionando, mas, por ser um beta gratuito, não garantimos que ele estará sempre
+      disponível ou livre de erros. Na medida permitida pela lei, não respondemos por decisões financeiras tomadas com base nas
+      informações do Poupi, por lançamentos incorretos feitos pelos usuários nem por indisponibilidade temporária.
+    </p>
+    <p>Nada nestes termos afasta os direitos que o Código de Defesa do Consumidor garante a você.</p>
+  </section>
+
+  <section id="mudancas">
+    <h2>Mudanças nestes termos</h2>
+    <p>
+      Podemos atualizar estes termos. Mudanças importantes serão avisadas por e-mail ou no app antes de valerem. A data da última
+      atualização fica no topo desta página.
+    </p>
+  </section>
+
+  <section id="lei">
+    <h2>Lei aplicável e foro</h2>
+    <p>Estes termos seguem as leis do Brasil. Qualquer disputa pode ser levada ao foro do seu domicílio.</p>
+  </section>
+
+  <section id="contato">
+    <h2>Contato</h2>
+    <p>Dúvidas, pedidos e reclamações: <Contact />.</p>
+  </section>
+</Legal>

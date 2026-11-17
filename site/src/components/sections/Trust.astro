@@ -1,0 +1,39 @@
+---
+const points = [
+  {
+    title: 'Nada de senha do banco',
+    text: 'Você lança escrevendo. O Poupi não se conecta à sua conta bancária e não pede nenhum dado dela.',
+  },
+  {
+    title: 'Cada conta é fechada',
+    text: 'O que uma família lança não aparece para nenhuma outra. Na sua, só entra quem você convidou.',
+  },
+  {
+    title: 'O que você escreve fica aqui',
+    text: 'O lançamento rápido funciona por regras, no nosso servidor. O texto não vai para nenhum serviço de inteligência artificial.',
+  },
+  {
+    title: 'Senha guardada com hash',
+    text: 'A senha é guardada só em versão cifrada, e a conexão é sempre criptografada. Trocou a senha? As outras sessões abertas saem na hora.',
+  },
+]
+---
+
+<section class="trust block" id="seguranca" aria-labelledby="trust-title">
+  <div class="wrap">
+    <div class="block-head">
+      <span class="kicker">Confiança</span>
+      <h2 class="display" id="trust-title">Seu dinheiro é assunto seu.</h2>
+      <p>Controle financeiro pede confiança. Por isso o Poupi pede pouco: seu e-mail, uma senha forte e o que você quiser lançar.</p>
+    </div>
+    <ol class="trust-list">
+      {points.map((point, index) => (
+        <li>
+          <span class="trust-n" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          <h3>{point.title}</h3>
+          <p>{point.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

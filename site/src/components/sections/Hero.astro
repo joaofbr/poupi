@@ -1,0 +1,97 @@
+---
+import Icon from '../Icon.astro'
+import Phone from '../app/Phone.astro'
+import AppHeader from '../app/AppHeader.astro'
+import AppNav from '../app/AppNav.astro'
+import MonthPill from '../app/MonthPill.astro'
+import QuickBox from '../app/QuickBox.astro'
+import Summary from '../app/Summary.astro'
+import { CATEGORIES, HERO_DAY, brl, entry, monthTotals } from '../../data/story'
+import { LINKS } from '../../data/site'
+
+const uber = entry('uber')
+const totals = monthTotals(HERO_DAY)
+const transport = CATEGORIES[uber.category]
+const words = [
+  { slot: 'desc', text: 'uber' },
+  { slot: 'valor', text: '25' },
+  { slot: 'data', text: 'ontem' },
+  { slot: 'cartao', text: 'nubank' },
+]
+const chips = [
+  { slot: 'valor', label: 'valor', from: '25', to: brl(Math.abs(uber.amount)) },
+  { slot: 'desc', label: 'categoria', from: 'uber', to: transport.name },
+  { slot: 'data', label: 'data', from: 'ontem', to: '15 de novembro' },
+  { slot: 'cartao', label: 'cartão', from: 'nubank', to: 'fatura de dezembro' },
+]
+---
+
+<section class="scene scene-pinned hero" id="topo" aria-labelledby="hero-title" data-scene="hero">
+  <div class="wrap scene-inner hero-grid" data-root>
+    <span class="pill hero-pill"><i></i>Beta fechado · grátis durante o teste</span>
+    <div class="hero-copy">
+      <h1 class="display" id="hero-title">Escreveu, <em>tá lançado.</em></h1>
+      <p class="lede">O Poupi entende o valor, a categoria, a data e o cartão de cada gasto. Você só confere antes de salvar.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href={LINKS.register}>Pedir acesso ao beta</a>
+        <a class="btn btn-ghost" href="#mes">Ver um mês no Poupi</a>
+      </div>
+    </div>
+    <div class="hero-play" data-el="play">
+      <div class="hero-sentence">
+        <p class="you-write">Você escreve</p>
+        <p class="sentence display" aria-label="“uber 25 ontem nubank”">
+          <span class="q" aria-hidden="true">“</span>{words.map((word, index) => (
+            <>
+              <span class="w" data-slot={word.slot} aria-hidden="true"><span class="ghost">{word.text}</span><span class="fly">{word.text}</span></span>
+              {index < words.length - 1 && ' '}
+            </>
+          ))}<span class="q" aria-hidden="true">”</span>
+        </p>
+      </div>
+      <div class="stage hero-stage" data-el="stage">
+        <Phone label="Tela do Poupi confirmando o lançamento: Uber, R$ 25,00, Transporte, ontem, no cartão Nubank, fatura de dezembro" data-el="phone">
+          <AppHeader title="Dashboard" />
+          <div class="a-body">
+            <MonthPill />
+            <QuickBox text="uber 25 ontem nubank" />
+            <Summary income={totals.income} expense={totals.expense} balance={totals.balance} />
+          </div>
+          <AppNav active="inicio" />
+          <div class="a-overlay is-up" data-el="overlay"></div>
+          <div class="a-sheet is-up" data-el="sheet">
+            <div class="a-sheet-head">Confirmar lançamento<span><Icon name="x" /></span></div>
+            <div class="a-sheet-body">
+              <div class="a-said"><Icon name="message" />“uber 25 ontem nubank”</div>
+              <span class="a-kind out">Despesa</span>
+              <div class="a-amount"><span class="slot" data-target="valor"><span class="ph"></span><span class="val">{brl(Math.abs(uber.amount))}</span></span></div>
+              <div class="a-desc"><span class="slot" data-target="desc"><span class="ph"></span><span class="val">{uber.title}</span></span></div>
+              <dl class="a-rows">
+                <div>
+                  <dt>Categoria</dt>
+                  <dd><span class="slot" data-target="categoria"><span class="ph"></span><span class="val a-cat"><i style={`background:color-mix(in srgb, ${transport.color} 16%, var(--a-surface));color:${transport.color}`}><Icon name={transport.icon} /></i>{transport.name}</span></span></dd>
+                </div>
+                <div>
+                  <dt>Data da compra</dt>
+                  <dd><span class="slot" data-target="data"><span class="ph"></span><span class="val">Ontem, 15 de nov. de 2026</span></span></dd>
+                </div>
+                <div>
+                  <dt>Pagamento</dt>
+                  <dd><span class="slot" data-target="cartao"><span class="ph"></span><span class="val">Cartão Nubank<small>Fatura de dezembro 2026</small></span></span></dd>
+                </div>
+              </dl>
+            </div>
+            <div class="a-actions"><span class="adj"><Icon name="pencil" />Ajustar</span><span class="ok" data-el="confirm"><Icon name="check" />Confirmar</span></div>
+          </div>
+          <div class="a-toast" data-el="toast"><Icon name="check-circle" />Lançamento salvo na fatura de dezembro 2026</div>
+        </Phone>
+        {chips.map((chip, index) => (
+          <div class="chip glass hero-chip" data-chip={chip.slot} style={`--i:${index}`}>
+            <small>{chip.label}</small>
+            <span><span class="from">{chip.from} → </span>{chip.to}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

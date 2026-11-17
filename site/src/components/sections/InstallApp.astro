@@ -1,0 +1,50 @@
+---
+import Icon from '../Icon.astro'
+
+const platforms = [
+  {
+    name: 'No iPhone',
+    browser: 'pelo Safari',
+    steps: [
+      { icon: 'share', html: 'Toque em <strong>Compartilhar</strong>, na barra do Safari.' },
+      { icon: 'plus-square', html: 'Role a lista e toque em <strong>Adicionar à Tela de Início</strong>.' },
+      { icon: 'check', html: 'Toque em <strong>Adicionar</strong>. O ícone aparece junto dos seus apps.' },
+    ],
+  },
+  {
+    name: 'No Android',
+    browser: 'pelo Chrome',
+    steps: [
+      { icon: 'more-vertical', html: 'Toque no <strong>menu</strong> do navegador, no canto de cima.' },
+      { icon: 'plus-square', html: 'Toque em <strong>Adicionar à tela inicial</strong> ou <strong>Instalar app</strong>.' },
+      { icon: 'check', html: 'Confirme. O ícone aparece junto dos seus apps.' },
+    ],
+  },
+]
+---
+
+<section class="install block" id="app" aria-labelledby="install-title">
+  <div class="wrap install-grid">
+    <div class="block-head">
+      <span class="kicker">No celular</span>
+      <h2 class="display" id="install-title">Vira app. Sem loja de aplicativo.</h2>
+      <p>Abra o Poupi no navegador do celular e adicione à tela inicial. Ele ganha ícone, abre em tela cheia e fica a um toque, na hora do gasto.</p>
+      <div class="home-icon" aria-hidden="true">
+        <Icon name="mark" />
+        <span>Poupi</span>
+      </div>
+    </div>
+    <div class="install-steps">
+      {platforms.map((platform) => (
+        <div class="platform">
+          <h3>{platform.name} <span>{platform.browser}</span></h3>
+          <ol>
+            {platform.steps.map((step) => (
+              <li><span class="step-ic"><Icon name={step.icon} /></span><span set:html={step.html} /></li>
+            ))}
+          </ol>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

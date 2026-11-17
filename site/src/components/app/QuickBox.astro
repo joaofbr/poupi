@@ -1,0 +1,21 @@
+---
+import Icon from '../Icon.astro'
+
+interface Props {
+  text: string
+  size?: number
+}
+
+const { text, size } = Astro.props
+---
+
+<div class="a-card a-quick">
+  <div class="a-quick-head">
+    <span class="ic"><Icon name="zap" /></span>
+    <div><b>Lançar rápido</b><small>Escreva como você falaria. Você confere antes de salvar.</small></div>
+  </div>
+  <div class="a-quick-row">
+    <span class="a-input" style={size ? `font-size:${size}px` : undefined}>{text}</span>
+    <span class="a-launch"><Icon name="send" />Lançar</span>
+  </div>
+</div>
