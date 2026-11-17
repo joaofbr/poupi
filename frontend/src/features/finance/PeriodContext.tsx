@@ -13,24 +13,16 @@ interface PeriodContextValue {
 const PeriodContext = createContext<PeriodContextValue | null>(null)
 
 export function PeriodProvider({ children }: { children: ReactNode }) {
-  const now = new Date()
-  const [year, setYear] = useState(now.getFullYear())
-  const [month, setMonth] = useState(now.getMonth())
+  const [{ year, month }, setPeriod] = useState(() => {
+    const now = new Date()
+    return { year: now.getFullYear(), month: now.getMonth() }
+  })
 
-  const shift = (delta: number) => {
-    setMonth((currentMonth) => {
-      const next = currentMonth + delta
-      if (next < 0) {
-        setYear((y) => y - 1)
-        return 11
-      }
-      if (next > 11) {
-        setYear((y) => y + 1)
-        return 0
-      }
-      return next
+  const shift = (delta: number) =>
+    setPeriod((current) => {
+      const target = new Date(current.year, current.month + delta, 1)
+      return { year: target.getFullYear(), month: target.getMonth() }
     })
-  }
 
   const value: PeriodContextValue = {
     year,
