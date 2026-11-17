@@ -306,6 +306,10 @@ Regras para não vazar dados entre contas:
   768×1024, 844×390, 1024×768, 1366×657, 1440×900 e 1920×1080, nos dois temas e com movimento reduzido. Confira
   rolagem horizontal zero e o conteúdo das cenas presas dentro da tela.
 - `public/og.png` é uma captura do topo; mudou o topo, gere de novo.
+- Cloudflare Pages `poupi-site`: raiz `site`, build `npm run build`, saída `dist`, `NODE_VERSION=24` (o Astro 7
+  exige Node 22.23.4 ou mais). O Cloudflare instala com `npm ci` do npm 10, que recusa lock gerado pelo npm 11
+  (dependência opcional `@emnapi/*` do `@astrojs/check`). Mexeu em dependência do site? Atualize o lock com
+  `npx npm@10.9.9 install` e confira com `npx npm@10.9.9 ci --dry-run`.
 
 ## Front: armadilhas conhecidas
 
