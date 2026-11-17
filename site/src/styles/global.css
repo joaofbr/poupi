@@ -530,7 +530,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
 .lede { max-width: 46ch; font-size: clamp(16px, 1.3vw, 18px); color: var(--text2); }
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
 .hero-play { display: grid; gap: 14px; min-width: 0; }
-.hero-sentence { display: grid; gap: 6px; min-width: 0; }
+.hero-sentence { position: relative; z-index: 3; display: grid; gap: 6px; min-width: 0; }
 .you-write { font-size: 12px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--text3); }
 .sentence { font-size: clamp(32px, 9.4vw, 46px); color: var(--ink); }
 .sentence .q { color: var(--text3); font-weight: 500; }
@@ -643,7 +643,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
   .is-animated .hero-play {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 22px;
     height: calc(100vh - var(--nav-h) - env(safe-area-inset-top, 0px));
     height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
     padding-top: 12px;
