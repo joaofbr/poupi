@@ -174,8 +174,8 @@ function setupHero(section: HTMLElement, mode: Mode): Scene {
         at,
       )
       .to(fly, { opacity: 0, duration: 0.15, ease: 'none' }, at + 0.6)
-      .to(need(slot, '.ph'), { opacity: 0, duration: 0.15, ease: 'none' }, at + 0.55)
-      .to(value, { opacity: 1, duration: 0.2, ease: 'none' }, at + 0.6)
+      .fromTo(need(slot, '.ph'), { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none', immediateRender: false }, at + 0.55)
+      .fromTo(value, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'none', immediateRender: false }, at + 0.6)
     const chip = root.querySelector(`[data-chip="${name}"]`)
     if (chip && mode.wide) {
       timeline.fromTo(chip, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power1.out' }, at + 0.62)
@@ -183,8 +183,8 @@ function setupHero(section: HTMLElement, mode: Mode): Scene {
     if (name === 'desc') {
       const category = need(root, '.slot[data-target="categoria"]')
       timeline
-        .to(need(category, '.ph'), { opacity: 0, duration: 0.15, ease: 'none' }, at + 0.7)
-        .to(need(category, '.val'), { opacity: 1, duration: 0.2, ease: 'none' }, at + 0.75)
+        .fromTo(need(category, '.ph'), { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'none', immediateRender: false }, at + 0.7)
+        .fromTo(need(category, '.val'), { opacity: 0 }, { opacity: 1, duration: 0.2, ease: 'none', immediateRender: false }, at + 0.75)
     }
   })
   const end = 0.1 + order.length * 0.55 + 0.35
@@ -194,7 +194,12 @@ function setupHero(section: HTMLElement, mode: Mode): Scene {
     .to(confirm, { scale: 1, duration: 0.15, ease: 'power1.out' }, end + 0.15)
     .to(need(root, 'sheet'), { yPercent: 100, duration: 0.7, ease: 'power2.in' }, end + 0.3)
     .to(need(root, 'overlay'), { opacity: 0, duration: 0.6, ease: 'none' }, end + 0.35)
-    .to(need(root, 'toast'), { opacity: 1, y: 0, duration: 0.3, ease: 'power1.out' }, end + 0.8)
+    .fromTo(
+      need(root, 'toast'),
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.3, ease: 'power1.out', immediateRender: false },
+      end + 0.8,
+    )
     .to({}, { duration: 0.25 })
   const chips = root.querySelectorAll('[data-chip]')
   if (chips.length && mode.wide) timeline.to(chips, { autoAlpha: 0, duration: 0.4, ease: 'none' }, end + 0.3)
@@ -479,7 +484,25 @@ function setupClose(section: HTMLElement, mode: Mode): Scene {
   return { measure, render }
 }
 
+function whenStylesReady(): Promise<void> {
+  const pending = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]')].filter((link) => !link.sheet)
+  return Promise.all(
+    pending.map(
+      (link) =>
+        new Promise<void>((resolve) => {
+          link.addEventListener('load', () => resolve(), { once: true })
+          link.addEventListener('error', () => resolve(), { once: true })
+        }),
+    ),
+  ).then(() => undefined)
+}
+
 export function startScenes() {
+  window.__poupiScenes = true
+  whenStylesReady().then(runScenes)
+}
+
+function runScenes() {
   gsap.registerPlugin(ScrollTrigger)
   ScrollTrigger.config({ ignoreMobileResize: true })
 
@@ -536,12 +559,10 @@ export function startScenes() {
     return restore
   })
 
-  window.__poupiScenes = true
-
   const refresh = () => {
     fitScreens()
     ScrollTrigger.refresh()
   }
   document.fonts?.ready.then(refresh)
-  window.addEventListener('load', refresh, { once: true })
+  if (document.readyState !== 'complete') window.addEventListener('load', refresh, { once: true })
 }
