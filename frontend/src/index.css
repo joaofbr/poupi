@@ -28,7 +28,7 @@
   --shadow-card-md: var(--shadow-md);
   --shadow-card-lg: var(--shadow-lg);
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 :root,

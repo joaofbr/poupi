@@ -7,6 +7,7 @@ namespaces, repositório `joaofbr/poupi`). Não reintroduza o nome antigo. Monor
 - `backend/`: ASP.NET Core (.NET 10), EF Core, PostgreSQL, JWT. Camadas `Domain`, `Application`,
   `Infrastructure` e `Api` (o Domain não depende de ninguém, a Api só conversa com a Application).
 - `frontend/`: React 19, TypeScript, Vite, Tailwind v4, TanStack Query, empacotável com Capacitor.
+- `site/`: landing page de vitrine (Astro + Tailwind v4 + GSAP), projeto Cloudflare Pages próprio.
 - `docs/PLANO.md`: plano original. Descreve o modelo antigo de **uma família por instalação**,
   que não vale mais. O modelo atual está neste arquivo e no `README.md`.
 
@@ -21,6 +22,7 @@ namespaces, repositório `joaofbr/poupi`). Não reintroduza o nome antigo. Monor
 | Front (porta 5173) | `cd frontend && npm run dev` |
 | Tipos e lint | `npx tsc -b --noEmit` e `npm run lint` |
 | Código morto no front | `npx knip@5.88.1` |
+| Site (porta 4321) | `cd site && npm run dev`; antes de entregar, `npm run build` e `npx astro check` |
 
 Não existe projeto de testes. Antes de entregar mudança no backend, rode `dotnet build`; no front,
 `tsc`, `lint` e `knip`. A API trava as DLLs enquanto roda: pare-a antes de compilar.
@@ -274,6 +276,36 @@ Regras para não vazar dados entre contas:
   mostra `offline.html`. Não acrescente cache de assets sem estratégia de atualização: prende a versão
   antiga no celular depois do deploy. Registro só em produção e fora do Capacitor
   (`registerServiceWorker.ts`). Conferir instalabilidade: `Page.getInstallabilityErrors` no Chrome deve vir vazio.
+
+## Site de vitrine (`site/`)
+
+- Página única que conta um novembro da Marina (e do Lucas, no plano família) com o app real no celular. Visual
+  aprovado no protótipo de 2026-11-16; decisões de design na memória do projeto. Os botões levam a `/register` e
+  `/login` do app (`src/data/site.ts`).
+- **Todo número sai de `src/data/story.ts`** (lançamentos, totais, fatura, categorias, integrantes). Mudou um valor?
+  Mude ali; as cenas e o texto dos painéis calculam a partir dele, e os números precisam bater entre as cenas
+  (dia 16: saldo R$ 3.995,10; dia 30: despesas R$ 2.497,70).
+- Duas montagens de cada cena:
+  - **Parada** (padrão do HTML): sem JS, com `prefers-reduced-motion` ou tela com menos de 600px de altura
+    (celular deitado). Painéis empilhados e o celular no estado final.
+  - **Animada**: classe `is-animated` no `<html>` (posta no `<head>` por `ANIMATED_QUERY`, de `scripts/motion.ts`),
+    cenas presas à rolagem em `scripts/scenes.ts` com `gsap.matchMedia`. O CSS sob `.is-animated` define o estado
+    inicial; ao trocar de modo (redimensionar), o script desfaz os pins e restaura o HTML original de cada cena.
+- No celular, a cena presa mostra o texto em cima (altura medida do maior painel) e o celular embaixo, recortado:
+  a "câmera" desce pelo celular (`pan` em `scenes.ts`) em vez de encolhê-lo, para o texto do app continuar legível.
+- A tela do app é desenhada em 390×844 e escalada por `--k` (largura da tela ÷ 390). Sem JS, `--k` sai de `--pw-n`.
+- Páginas legais: `/termos/` e `/privacidade/` (layout `src/layouts/Legal.astro`). O texto descreve o que o app faz
+  de verdade (dados guardados, validade de sessão e convites, provedores Render, Neon, Cloudflare e Brevo, nenhum
+  cookie nem serviço de terceiros no navegador). Mudou algo disso no app? Atualize a política e a data `LEGAL_UPDATED`
+  em `src/data/site.ts`. O cadastro e o aceite de convite no app linkam as duas páginas (`LegalConsent`, `env.siteUrl`).
+- O app serve a própria fonte (`@fontsource-variable/inter`); não volte a carregar fonte de CDN, porque a política
+  afirma que nada no navegador fala com terceiros.
+- Ainda não há CNPJ nem redes sociais: o rodapé não mostra esses itens. O e-mail de contato (`CONTACT_EMAIL`) e o
+  nome do responsável (`OWNER_NAME`) ficam em `src/data/site.ts`; enquanto forem `null`, aparece "a definir".
+- Revisão visual: `astro preview` e capturas com `playwright-core` em 360×640, 390×664 (iPhone com a barra do Safari),
+  768×1024, 844×390, 1024×768, 1366×657, 1440×900 e 1920×1080, nos dois temas e com movimento reduzido. Confira
+  rolagem horizontal zero e o conteúdo das cenas presas dentro da tela.
+- `public/og.png` é uma captura do topo; mudou o topo, gere de novo.
 
 ## Front: armadilhas conhecidas
 

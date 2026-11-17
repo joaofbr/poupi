@@ -11,6 +11,7 @@ import { useAuth } from '../useAuth'
 import { registerSchema } from '../schemas'
 import type { RegisterFormValues } from '../schemas'
 import { AuthLayout } from '../components/AuthLayout'
+import { LegalConsent } from '../components/LegalConsent'
 import { PasswordStrengthMeter } from '../components/PasswordStrengthMeter'
 
 export function RegisterPage() {
@@ -145,6 +146,7 @@ export function RegisterPage() {
         >
           Criar conta
         </Button>
+        <LegalConsent action="Ao criar a conta" />
       </form>
     </AuthLayout>
   )

@@ -15,6 +15,7 @@ import { useAuth } from '../useAuth'
 import { setPasswordSchema } from '../schemas'
 import type { SetPasswordFormValues } from '../schemas'
 import { AuthLayout } from '../components/AuthLayout'
+import { LegalConsent } from '../components/LegalConsent'
 import { PasswordStrengthMeter } from '../components/PasswordStrengthMeter'
 import type { InviteTarget } from '../types'
 
@@ -249,6 +250,7 @@ export function SetPasswordPage() {
         >
           {invite ? 'Aceitar convite e entrar' : 'Salvar nova senha'}
         </Button>
+        {invite && <LegalConsent action="Ao aceitar o convite" />}
       </form>
 
       {confirmingDecline && (
