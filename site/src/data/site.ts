@@ -14,7 +14,7 @@ export const CONTACT_EMAIL: string | null = null
 
 export const OWNER_NAME: string | null = null
 
-export const LEGAL_UPDATED = '16 de novembro de 2026'
+export const LEGAL_UPDATED = '21 de novembro de 2026'
 
 export const SITE = {
   title: 'Poupi: escreveu, tá lançado',
