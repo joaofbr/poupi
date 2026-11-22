@@ -8,6 +8,7 @@ public class Card
     public int ClosingDay { get; set; }
     public int DueDay { get; set; }
     public Guid? OwnerId { get; set; }
+    public string Color { get; set; } = string.Empty;
     public bool Active { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -34,6 +34,11 @@ namespace Poupi.Infrastructure.Persistence.Migrations
                     b.Property<int>("ClosingDay")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 

@@ -4,6 +4,7 @@ export interface Card {
   closingDay: number
   dueDay: number
   ownerId: string | null
+  color: string
   active: boolean
 }
 
@@ -12,4 +13,5 @@ export interface CardInput {
   closingDay: number
   dueDay: number
   ownerId: string | null
+  color: string
 }

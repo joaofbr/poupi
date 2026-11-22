@@ -6,6 +6,7 @@ public record CardDto(
     int ClosingDay,
     int DueDay,
     string? OwnerId,
+    string Color,
     bool Active);
 
-public record CardInput(string Name, int ClosingDay, int DueDay, string? OwnerId);
+public record CardInput(string Name, int ClosingDay, int DueDay, string? OwnerId, string? Color = null);

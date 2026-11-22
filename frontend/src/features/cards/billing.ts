@@ -1,4 +1,4 @@
-import { formatPeriodLabel } from '@/lib/format'
+import { formatDateShort, formatPeriodLabel } from '@/lib/format'
 import type { SeriesKind } from '@/features/finance/types'
 import type { Card } from './types'
 
@@ -18,10 +18,10 @@ function addMonths({ year, month }: Month, delta: number): Month {
   return { year: date.getFullYear(), month: date.getMonth() }
 }
 
-function dayOf(month: Month, day: number): string {
+function isoOf(month: Month, day: number): string {
   const dd = String(Math.min(day, daysIn(month))).padStart(2, '0')
   const mm = String(month.month + 1).padStart(2, '0')
-  return `${dd}/${mm}`
+  return `${month.year}-${mm}-${dd}`
 }
 
 function parseIso(iso: string): Month & { day: number } {
@@ -66,11 +66,41 @@ export function billLabel(month: Month): string {
   return formatPeriodLabel(month.year, month.month).toLowerCase()
 }
 
-export function billDates(card: BillingRule, reference: Month) {
+export function billShortLabel(month: Month): string {
+  const name = new Date(month.year, month.month, 1).toLocaleDateString('pt-BR', { month: 'long' })
+  return month.year === new Date().getFullYear() ? name : `${name} de ${month.year}`
+}
+
+export function closesInLabel(days: number): string {
+  if (days <= 0) return 'fecha hoje'
+  if (days === 1) return 'fecha amanhã'
+  return `fecha em ${days} dias`
+}
+
+export interface BillCycle {
+  month: Month
+  next: Month
+  opensOn: string
+  closesOn: string
+  dueOn: string
+}
+
+export function billCycle(card: BillingRule, reference: Month): BillCycle {
   const closingMonth =
     card.dueDay > card.closingDay ? reference : addMonths(reference, -1)
   return {
-    closing: dayOf(closingMonth, card.closingDay),
-    due: dayOf(reference, card.dueDay),
+    month: reference,
+    next: addMonths(reference, 1),
+    opensOn: isoOf(addMonths(closingMonth, -1), card.closingDay),
+    closesOn: isoOf(closingMonth, card.closingDay),
+    dueOn: isoOf(reference, card.dueDay),
+  }
+}
+
+export function billDates(card: BillingRule, reference: Month) {
+  const cycle = billCycle(card, reference)
+  return {
+    closing: formatDateShort(cycle.closesOn),
+    due: formatDateShort(cycle.dueOn),
   }
 }

@@ -16,7 +16,8 @@ public class CardService(ICardRepository cards, IUserRepository users) : ICardSe
     public async Task<CardDto> CreateAsync(
         Guid householdId, CardInput input, CancellationToken ct = default)
     {
-        var card = new Card { HouseholdId = householdId };
+        var existing = await cards.ListAsync(householdId, ct);
+        var card = new Card { HouseholdId = householdId, Color = CardPalette.ForIndex(existing.Count) };
         await ApplyAsync(householdId, card, input, ct);
         await cards.AddAsync(card, ct);
         await cards.SaveChangesAsync(ct);
@@ -64,10 +65,21 @@ public class CardService(ICardRepository cards, IUserRepository users) : ICardSe
             ownerId = parsed;
         }
 
+        string? color = null;
+        if (!string.IsNullOrWhiteSpace(input.Color))
+        {
+            color = CardPalette.Normalize(input.Color)
+                ?? throw new ValidationException("Escolha uma das cores disponíveis para o cartão.");
+        }
+
         card.Name = name;
         card.ClosingDay = input.ClosingDay;
         card.DueDay = input.DueDay;
         card.OwnerId = ownerId;
+        if (color is not null)
+        {
+            card.Color = color;
+        }
     }
 
     private async Task<Card> GetOrThrowAsync(Guid householdId, Guid id, CancellationToken ct) =>
@@ -80,5 +92,6 @@ public class CardService(ICardRepository cards, IUserRepository users) : ICardSe
         card.ClosingDay,
         card.DueDay,
         card.OwnerId?.ToString(),
+        card.Color,
         card.Active);
 }

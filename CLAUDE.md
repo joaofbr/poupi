@@ -197,6 +197,13 @@ Regras para não vazar dados entre contas:
   serve para quem já lançava a compra no mês do pagamento.
 - `features/cards/billing.ts` espelha a regra para a dica do formulário e o resumo de faturas. Mudou
   `CardBilling.cs`? Mude o espelho junto.
+- Tela de Cartões: carrossel de cartões estilizados (`CardFace`) com a fatura **aberta** de cada um (a fatura onde
+  cairia uma compra feita hoje: `billMonth(card, hoje)` + `billCycle`), e abaixo os detalhes do selecionado. O total
+  sai do cache de lançamentos do mês (`useOpenBills`, mesma chave de `useMonthlyTransactions`), sem endpoint novo.
+  Arquivar fica dentro do formulário, com confirmação; arquivados aparecem numa seção à parte com "Reativar".
+- Cor do cartão: uma das 8 cores de `Application/Common/CardPalette.cs` (espelho em `features/cards/palette.ts`),
+  validada no servidor. Sem cor no pedido, o servidor escolhe pela quantidade de cartões da família. O acabamento
+  (`cardFinish`) escurece a cor para o texto branco passar de 4,5:1; não use a cor pura como fundo de texto.
 
 ## Migrations
 

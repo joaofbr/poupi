@@ -6,9 +6,11 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { useToast } from '@/components/ui/ToastProvider'
 import { getApiErrorMessage } from '@/lib/apiError'
 import { useHasFamily, useMembers } from '@/features/finance/hooks'
-import type { Member } from '@/features/finance/types'
+import { CardCarousel } from '../components/CardCarousel'
+import { CardDetails } from '../components/CardDetails'
 import { CardFormModal } from '../components/CardFormModal'
-import { useCards, useSaveCard, useSetCardActive } from '../hooks'
+import { useCards, useOpenBills, useSaveCard, useSetCardActive } from '../hooks'
+import { cardFinish, nextCardColor } from '../palette'
 import type { Card, CardInput } from '../types'
 
 export function CardsPage() {
@@ -19,8 +21,16 @@ export function CardsPage() {
   const saveCard = useSaveCard()
   const setActive = useSetCardActive()
   const [modal, setModal] = useState<{ editing: Card | null } | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const cards = cardsQuery.data ?? []
+  const activeCards = cards.filter((card) => card.active)
+  const archivedCards = cards.filter((card) => !card.active)
+  const openBills = useOpenBills(activeCards)
+  const selected = activeCards.find((card) => card.id === selectedId) ?? activeCards[0]
+
+  const ownerOf = (card: Card) =>
+    hasFamily ? (members.find((member) => member.id === card.ownerId)?.name ?? 'Da família') : null
 
   const showError = (fallback: string) => (error: unknown) =>
     showToast(getApiErrorMessage(error, fallback), 'warning')
@@ -30,8 +40,9 @@ export function CardsPage() {
     saveCard.mutate(
       { id: editing?.id ?? null, input },
       {
-        onSuccess: () => {
+        onSuccess: (saved) => {
           setModal(null)
+          if (!editing) setSelectedId(saved.id)
           showToast(editing ? 'Cartão atualizado' : 'Cartão cadastrado')
         },
         onError: showError('Não foi possível salvar o cartão'),
@@ -39,12 +50,15 @@ export function CardsPage() {
     )
   }
 
-  const handleToggle = (card: Card) =>
+  const handleActive = (card: Card, active: boolean) =>
     setActive.mutate(
-      { id: card.id, active: !card.active },
+      { id: card.id, active },
       {
-        onSuccess: () =>
-          showToast(card.active ? 'Cartão arquivado' : 'Cartão reativado', 'neutral'),
+        onSuccess: () => {
+          setModal(null)
+          if (active) setSelectedId(card.id)
+          showToast(active ? 'Cartão reativado' : 'Cartão arquivado', 'neutral')
+        },
         onError: showError('Não foi possível alterar o cartão'),
       },
     )
@@ -66,55 +80,80 @@ export function CardsPage() {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
-        {cardsQuery.isError ? (
+      {cardsQuery.isError ? (
+        <div className="rounded-2xl border border-border bg-surface shadow-card">
           <QueryError onRetry={() => void cardsQuery.refetch()} />
-        ) : cardsQuery.isLoading ? (
-          <div className="flex flex-col gap-3 p-4">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <Skeleton key={index} height={52} />
-            ))}
+        </div>
+      ) : cardsQuery.isLoading ? (
+        <div className="grid grid-cols-1 gap-4">
+          <div className="w-[min(340px,100%)]">
+            <Skeleton height={212} />
           </div>
-        ) : cards.length === 0 ? (
-          <EmptyCards />
-        ) : (
-          cards.map((card) => (
-            <CardRow
-              key={card.id}
-              card={card}
-              ownerLabel={hasFamily ? ownerLabel(card, members) : null}
-              onEdit={() => setModal({ editing: card })}
-              onToggle={() => handleToggle(card)}
+          <Skeleton height={220} />
+        </div>
+      ) : activeCards.length === 0 ? (
+        <EmptyCards hasArchived={archivedCards.length > 0} />
+      ) : (
+        selected && (
+          <div className="grid grid-cols-1 gap-4">
+            <CardCarousel
+              cards={activeCards}
+              bills={openBills.bills}
+              ownerOf={ownerOf}
+              selectedId={selected.id}
+              onSelect={setSelectedId}
             />
-          ))
-        )}
-      </div>
+            <CardDetails
+              card={selected}
+              bill={openBills.bills.get(selected.id)}
+              owner={ownerOf(selected)}
+              loading={openBills.isLoading}
+              failed={openBills.isError}
+              onRetry={openBills.refetch}
+              onEdit={() => setModal({ editing: selected })}
+            />
+          </div>
+        )
+      )}
+
+      {archivedCards.length > 0 && (
+        <ArchivedCards
+          cards={archivedCards}
+          busy={setActive.isPending}
+          onReactivate={(card) => handleActive(card, true)}
+        />
+      )}
 
       {modal && (
         <CardFormModal
           editing={modal.editing}
           members={members}
           showOwner={hasFamily}
+          defaultColor={nextCardColor(cards.length)}
           saving={saveCard.isPending}
+          archiving={setActive.isPending}
           onClose={() => setModal(null)}
           onSubmit={handleSubmit}
+          onArchive={modal.editing?.active ? () => handleActive(modal.editing as Card, false) : undefined}
         />
       )}
     </div>
   )
 }
 
-function ownerLabel(card: Card, members: Member[]): string {
-  return members.find((member) => member.id === card.ownerId)?.name ?? 'Da família'
-}
-
-function EmptyCards() {
+function EmptyCards({ hasArchived }: { hasArchived: boolean }) {
   return (
-    <div className="px-6 py-12 text-center">
-      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[20px] bg-surface-2 text-text-3">
-        <Icon name="creditCard" size={28} strokeWidth={1.6} />
+    <div className="rounded-2xl border border-border bg-surface px-6 py-10 text-center shadow-card">
+      <div
+        aria-hidden
+        className="mx-auto mb-5 flex aspect-[1.586] w-[180px] flex-col justify-end rounded-[16px] border-2 border-dashed border-border-strong p-3"
+      >
+        <span className="h-2 w-16 rounded-full bg-surface-2" />
+        <span className="mt-1.5 h-3 w-24 rounded-full bg-surface-2" />
       </div>
-      <div className="mb-1.5 text-[16px] font-bold">Nenhum cartão cadastrado</div>
+      <div className="mb-1.5 text-[16px] font-bold">
+        {hasArchived ? 'Nenhum cartão ativo' : 'Nenhum cartão cadastrado'}
+      </div>
       <p className="mx-auto max-w-[340px] text-[14px] text-text-2">
         Cadastre o cartão com o dia de fechamento e de vencimento. Depois é só lançar a
         compra com a data real: ela aparece no mês da fatura.
@@ -123,55 +162,46 @@ function EmptyCards() {
   )
 }
 
-interface CardRowProps {
-  card: Card
-  ownerLabel: string | null
-  onEdit: () => void
-  onToggle: () => void
+interface ArchivedCardsProps {
+  cards: Card[]
+  busy: boolean
+  onReactivate: (card: Card) => void
 }
 
-function CardRow({ card, ownerLabel, onEdit, onToggle }: CardRowProps) {
+function ArchivedCards({ cards, busy, onReactivate }: ArchivedCardsProps) {
   return (
-    <div
-      className={`flex items-center gap-2 border-b border-border pr-4 last:border-b-0 ${
-        card.active ? '' : 'opacity-60'
-      }`}
-    >
-      <button
-        type="button"
-        onClick={onEdit}
-        aria-label={`Editar ${card.name}`}
-        className="flex min-w-0 flex-1 items-center gap-3.5 py-3.5 pl-4 text-left transition-colors hover:bg-surface-2/60"
-      >
-        <span className="flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-xl bg-surface-2 text-text-2">
-          <Icon name="creditCard" size={20} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[14.5px] font-semibold">
-            {card.name}
-            {!card.active && (
-              <span className="ml-2 text-[12px] font-medium text-text-3">(arquivado)</span>
-            )}
-          </span>
-          <span className="mt-0.5 block truncate text-[12.5px] text-text-3">
-            Fecha dia {card.closingDay} · vence dia {card.dueDay}
-            {ownerLabel && ` · ${ownerLabel}`}
-          </span>
-        </span>
-        <span
-          aria-hidden
-          className="hidden h-9 w-9 flex-shrink-0 items-center justify-center rounded-[10px] border border-border text-text-2 sm:flex"
-        >
-          <Icon name="pencil" size={16} />
-        </span>
-      </button>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="flex-shrink-0 whitespace-nowrap rounded-[10px] border border-border-strong px-3 py-2 text-[12.5px] font-semibold text-text-2 hover:bg-surface-2"
-      >
-        {card.active ? 'Arquivar' : 'Reativar'}
-      </button>
-    </div>
+    <section className="mt-6" aria-labelledby="archived-cards">
+      <h2 id="archived-cards" className="mb-2 text-[13px] font-semibold text-text-2">
+        Arquivados
+      </h2>
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-card">
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-b-0"
+          >
+            <span
+              aria-hidden
+              className="h-[26px] w-[40px] flex-shrink-0 rounded-[6px] opacity-60"
+              style={{ background: cardFinish(card.color) }}
+            />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[14.5px] font-semibold">{card.name}</span>
+              <span className="block truncate text-[12.5px] text-text-3">
+                Fecha dia {card.closingDay} · vence dia {card.dueDay}
+              </span>
+            </span>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => onReactivate(card)}
+              className="flex-shrink-0 whitespace-nowrap rounded-[10px] border border-border-strong px-3 py-2 text-[12.5px] font-semibold text-text-2 hover:bg-surface-2 disabled:opacity-60"
+            >
+              Reativar
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }

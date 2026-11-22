@@ -1,7 +1,7 @@
-import { Icon } from '@/components/ui/Icon'
 import { formatMoney } from '@/lib/format'
 import type { TransactionEntry } from '@/features/finance/transactionEntries'
 import { billDates } from '../billing'
+import { cardFinish } from '../palette'
 import type { Month } from '../billing'
 import type { Card } from '../types'
 
@@ -71,9 +71,11 @@ export function BillSummary({
                   selected ? 'border-primary' : 'border-border'
                 }`}
               >
-                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-surface-2 text-text-2">
-                  <Icon name="creditCard" size={19} />
-                </span>
+                <span
+                  aria-hidden
+                  className="h-[26px] w-[40px] flex-shrink-0 rounded-[6px] shadow-[0_6px_12px_-8px_rgba(6,40,28,0.6)]"
+                  style={{ background: cardFinish(card.color) }}
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-semibold">{card.name}</span>
                   <span className="mt-0.5 block truncate text-[12px] text-text-3">

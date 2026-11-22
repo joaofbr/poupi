@@ -50,6 +50,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<Card>(entity =>
         {
             entity.Property(c => c.Name).HasMaxLength(60);
+            entity.Property(c => c.Color).HasMaxLength(9);
             entity.HasIndex(c => c.HouseholdId);
             entity.HasOne<Household>()
                 .WithMany()
