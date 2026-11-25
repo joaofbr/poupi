@@ -8,6 +8,7 @@ namespaces, repositório `joaofbr/poupi`). Não reintroduza o nome antigo. Monor
   `Infrastructure` e `Api` (o Domain não depende de ninguém, a Api só conversa com a Application).
 - `frontend/`: React 19, TypeScript, Vite, Tailwind v4, TanStack Query, empacotável com Capacitor.
 - `site/`: landing page de vitrine (Astro + Tailwind v4 + GSAP), projeto Cloudflare Pages próprio.
+- `infra/keepalive/`: Cloudflare Worker agendado que mantém a API do Render acordada (ver "Infra").
 - `docs/PLANO.md`: plano original. Descreve o modelo antigo de **uma família por instalação**,
   que não vale mais. O modelo atual está neste arquivo e no `README.md`.
 
@@ -317,6 +318,18 @@ Regras para não vazar dados entre contas:
   exige Node 22.23.4 ou mais). O Cloudflare instala com `npm ci` do npm 10, que recusa lock gerado pelo npm 11
   (dependência opcional `@emnapi/*` do `@astrojs/check`). Mexeu em dependência do site? Atualize o lock com
   `npx npm@10.9.9 install` e confira com `npx npm@10.9.9 ci --dry-run`.
+
+## Infra (planos grátis do Render e do Neon)
+
+- O Render grátis desliga a API depois de 15 minutos sem acesso; a primeira requisição depois disso levou 23 s
+  (medido em 2026-11-25). O Worker `infra/keepalive` chama `GET /health` a cada 10 minutos das 6h à meia-noite de
+  Brasília (`*/10 0-2,9-23 * * *` em UTC). Fora desse horário a API dorme de propósito: o Render dá 750 horas grátis
+  por mês para a conta inteira, e ligada 24 horas ela gastaria 720 a 744. Assim fica perto de 570.
+- O ping tem que ser no `/health`, que **não toca o banco**. Um ping que consultasse o banco manteria o Neon acordado
+  e gastaria os 100 CU-horas grátis no meio do mês, suspendendo o banco. O Neon dorme depois de 5 minutos e acorda em
+  menos de 1 s; deixe-o dormir.
+- Publicar ou mudar o Worker: `cd infra/keepalive && npx wrangler@4 deploy` (pede `npx wrangler@4 login` na primeira
+  vez). Teste local: `npx wrangler@4 dev --test-scheduled` e `curl "http://127.0.0.1:8787/__scheduled?cron=*/10+*+*+*+*"`.
 
 ## Front: armadilhas conhecidas
 

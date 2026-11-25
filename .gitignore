@@ -57,3 +57,6 @@ pnpm-debug.log*
 
 # ---- Site (Astro) ----
 .astro/
+
+# ---- Cloudflare Workers (estado local do wrangler) ----
+.wrangler/

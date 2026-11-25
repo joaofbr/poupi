@@ -1,0 +1,11 @@
+name = "poupi-keepalive"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = false
+preview_urls = false
+
+[vars]
+HEALTH_URL = "https://localfinance-api.onrender.com/health"
+
+[triggers]
+crons = ["*/10 0-2,9-23 * * *"]
