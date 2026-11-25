@@ -20,9 +20,50 @@ const segments = slices.map((slice) => {
 const top = slices[0]
 ---
 
-<section class="scene scene-pinned scene-cal month-close" id="fechamento" aria-labelledby="close-title" data-scene="close">
+<section class="scene chapter scene-cal month-close" id="fechamento" aria-labelledby="close-title" data-scene="close">
   <div class="wrap scene-inner" data-root>
-    <Calendar today={CLOSE_DAY} />
+    <Calendar today={CLOSE_DAY} variant="column" />
+    <div class="visual" data-el="visual">
+      <Calendar today={CLOSE_DAY} variant="strip" />
+      <div class="stage" data-el="stage">
+        <Phone label={`Resumo de novembro no Poupi: receitas de ${brl(totals.income)}, despesas de ${brl(totals.expense)}, saldo de ${brl(totals.balance)}. ${slices.map((s) => `${s.label} ${s.percent}%`).join(', ')}`} data-el="phone">
+          <AppHeader title="Dashboard" />
+          <div class="a-body" data-el="body">
+            <MonthPill />
+            <Summary income={totals.income} expense={totals.expense} balance={totals.balance} />
+            <div class="a-card a-donut" data-el="donut-card">
+              <div class="a-donut-head">Gastos por categoria</div>
+              <div class="a-donut-figure">
+                <svg viewBox="0 0 42 42" aria-hidden="true">
+                  <circle cx="21" cy="21" r="15.915" fill="none" stroke="var(--a-chip)" stroke-width="4.5" />
+                  {segments.map((segment) => (
+                    <circle
+                      cx="21"
+                      cy="21"
+                      r="15.915"
+                      fill="none"
+                      stroke={segment.color}
+                      stroke-width="4.5"
+                      stroke-dasharray={`${segment.length} ${100 - segment.length}`}
+                      stroke-dashoffset={`${-segment.start}`}
+                      data-start={segment.start}
+                      data-length={segment.length}
+                    />
+                  ))}
+                </svg>
+                <div class="a-donut-center"><small>Total</small><b data-el="donut-total">{brl(totals.expense)}</b></div>
+              </div>
+              <div class="a-legend" data-el="legend">
+                {slices.map((slice) => (
+                  <div><i style={`background:${slice.color}`}></i><span>{slice.label}</span><small>{slice.percent}%</small><b>{brl(slice.value)}</b></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <AppNav active="inicio" />
+        </Phone>
+      </div>
+    </div>
     <div class="story">
       <h2 class="sr-only-text" id="close-title">O mês fecha</h2>
       <div class="panel on" data-panel="a">
@@ -35,44 +76,6 @@ const top = slices[0]
         <h3 class="display">O mês fecha. E as contas batem.</h3>
         <p>Entraram {brl(totals.income)}, saíram {brl(totals.expense)} e sobraram {brl(totals.balance)}. O gráfico mostra pra onde foi: {top.percent}% em {top.label.toLowerCase()}.</p>
       </div>
-    </div>
-    <div class="stage" data-el="stage">
-      <Phone label={`Resumo de novembro no Poupi: receitas de ${brl(totals.income)}, despesas de ${brl(totals.expense)}, saldo de ${brl(totals.balance)}. ${slices.map((s) => `${s.label} ${s.percent}%`).join(', ')}`} data-el="phone">
-        <AppHeader title="Dashboard" />
-        <div class="a-body" data-el="body">
-          <MonthPill />
-          <Summary income={totals.income} expense={totals.expense} balance={totals.balance} />
-          <div class="a-card a-donut" data-el="donut-card">
-            <div class="a-donut-head">Gastos por categoria</div>
-            <div class="a-donut-figure">
-              <svg viewBox="0 0 42 42" aria-hidden="true">
-                <circle cx="21" cy="21" r="15.915" fill="none" stroke="var(--a-chip)" stroke-width="4.5" />
-                {segments.map((segment) => (
-                  <circle
-                    cx="21"
-                    cy="21"
-                    r="15.915"
-                    fill="none"
-                    stroke={segment.color}
-                    stroke-width="4.5"
-                    stroke-dasharray={`${segment.length} ${100 - segment.length}`}
-                    stroke-dashoffset={`${-segment.start}`}
-                    data-start={segment.start}
-                    data-length={segment.length}
-                  />
-                ))}
-              </svg>
-              <div class="a-donut-center"><small>Total</small><b data-el="donut-total">{brl(totals.expense)}</b></div>
-            </div>
-            <div class="a-legend" data-el="legend">
-              {slices.map((slice) => (
-                <div><i style={`background:${slice.color}`}></i><span>{slice.label}</span><small>{slice.percent}%</small><b>{brl(slice.value)}</b></div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <AppNav active="inicio" />
-      </Phone>
     </div>
   </div>
 </section>

@@ -16,9 +16,48 @@ const salaryCategory = CATEGORIES[salary.category]
 const novemberBill = billTotal('novembro', 5)
 ---
 
-<section class="scene scene-pinned scene-cal month" id="mes" aria-labelledby="month-title" data-scene="month">
+<section class="scene chapter scene-cal month" id="mes" aria-labelledby="month-title" data-scene="month">
   <div class="wrap scene-inner" data-root>
-    <Calendar today={5} skip={{ href: '#familia', label: 'Pular o mês' }} />
+    <Calendar today={5} variant="column" skip={{ href: '#familia', label: 'Pular o mês' }} />
+    <div class="visual" data-el="visual">
+      <Calendar today={5} variant="strip" skip={{ href: '#familia', label: 'Pular o mês' }} />
+      <div class="stage" data-el="stage">
+        <Phone label={`Tela inicial do Poupi no dia 5: saldo de ${brl(totals.balance)}, receitas de ${brl(totals.income)} e despesas de ${brl(totals.expense)}`} data-el="phone">
+          <AppHeader title="Dashboard" />
+          <div class="a-body">
+            <MonthPill />
+            <Summary income={totals.income} expense={totals.expense} balance={totals.balance} />
+            <div class="a-card a-list">
+              <div class="a-list-head">Últimas transações<small>Ver todas</small></div>
+              <div class="a-rows-box">
+                {rows.map((item) => <Row entry={item} data-id={item.id} />)}
+              </div>
+            </div>
+          </div>
+          <AppNav active="inicio" />
+          <div class="a-overlay" data-el="overlay"></div>
+          <div class="a-sheet" data-el="sheet">
+            <div class="a-sheet-head">Confirmar lançamento<span><Icon name="x" /></span></div>
+            <div class="a-sheet-body">
+              <div class="a-said"><Icon name="message" />“recebi 2800 salário”</div>
+              <span class="a-kind in">Receita</span>
+              <div class="a-amount pos">{brl(salary.amount)}</div>
+              <div class="a-desc">{salary.title}</div>
+              <dl class="a-rows">
+                <div><dt>Categoria</dt><dd><span class="a-cat"><i style={`background:color-mix(in srgb, ${salaryCategory.color} 16%, var(--a-surface));color:${salaryCategory.color}`}><Icon name={salaryCategory.icon} /></i>{salaryCategory.name}</span></dd></div>
+                <div><dt>Data</dt><dd>Hoje, 5 de nov. de 2026</dd></div>
+              </dl>
+            </div>
+            <div class="a-actions"><span class="adj"><Icon name="pencil" />Ajustar</span><span class="ok"><Icon name="check" />Confirmar</span></div>
+          </div>
+        </Phone>
+        <div class="chip glass side-chip" data-el="chip">
+          <small>{CARD.name} · fatura de novembro</small>
+          <span>Fechada em {brl(novemberBill)}</span>
+          <small class="plain">vence 12/11</small>
+        </div>
+      </div>
+    </div>
     <div class="story">
       <h2 class="sr-only-text" id="month-title">Um mês no Poupi</h2>
       <div class="panel on" data-panel="a">
@@ -35,42 +74,6 @@ const novemberBill = billTotal('novembro', 5)
         <span class="kicker">Dia 5</span>
         <h3 class="display">E a fatura do {CARD.name} fechou.</h3>
         <p>Os {brl(novemberBill)} do cinema e da farmácia ficaram em novembro. Daqui pra frente, cada compra no cartão vai para a fatura de dezembro.</p>
-      </div>
-    </div>
-    <div class="stage" data-el="stage">
-      <Phone label={`Tela inicial do Poupi no dia 5: saldo de ${brl(totals.balance)}, receitas de ${brl(totals.income)} e despesas de ${brl(totals.expense)}`} data-el="phone">
-        <AppHeader title="Dashboard" />
-        <div class="a-body">
-          <MonthPill />
-          <Summary income={totals.income} expense={totals.expense} balance={totals.balance} />
-          <div class="a-card a-list">
-            <div class="a-list-head">Últimas transações<small>Ver todas</small></div>
-            <div class="a-rows-box">
-              {rows.map((item) => <Row entry={item} data-id={item.id} />)}
-            </div>
-          </div>
-        </div>
-        <AppNav active="inicio" />
-        <div class="a-overlay" data-el="overlay"></div>
-        <div class="a-sheet" data-el="sheet">
-          <div class="a-sheet-head">Confirmar lançamento<span><Icon name="x" /></span></div>
-          <div class="a-sheet-body">
-            <div class="a-said"><Icon name="message" />“recebi 2800 salário”</div>
-            <span class="a-kind in">Receita</span>
-            <div class="a-amount pos">{brl(salary.amount)}</div>
-            <div class="a-desc">{salary.title}</div>
-            <dl class="a-rows">
-              <div><dt>Categoria</dt><dd><span class="a-cat"><i style={`background:color-mix(in srgb, ${salaryCategory.color} 16%, var(--a-surface));color:${salaryCategory.color}`}><Icon name={salaryCategory.icon} /></i>{salaryCategory.name}</span></dd></div>
-              <div><dt>Data</dt><dd>Hoje, 5 de nov. de 2026</dd></div>
-            </dl>
-          </div>
-          <div class="a-actions"><span class="adj"><Icon name="pencil" />Ajustar</span><span class="ok"><Icon name="check" />Confirmar</span></div>
-        </div>
-      </Phone>
-      <div class="chip glass side-chip" data-el="chip">
-        <small>{CARD.name} · fatura de novembro</small>
-        <span>Fechada em {brl(novemberBill)}</span>
-        <small class="plain">vence 12/11</small>
       </div>
     </div>
   </div>

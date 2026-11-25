@@ -163,17 +163,15 @@
 }
 
 .wrap {
+  --gutter: 16px;
   width: 100%;
   max-width: 1240px;
   margin-inline: auto;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
 }
 @media (min-width: 640px) {
-  .wrap {
-    padding-left: max(28px, env(safe-area-inset-left, 0px));
-    padding-right: max(28px, env(safe-area-inset-right, 0px));
-  }
+  .wrap { --gutter: 28px; }
 }
 
 .display {
@@ -541,8 +539,10 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
 .is-animated .w .fly { will-change: transform; }
 .hero-chip, .side-chip, .family-chip { display: none; }
 
-.is-animated .hero .slot .ph { opacity: 1; }
-.is-animated .hero .slot .val { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .is-animated .hero .slot .ph { opacity: 1; }
+  .is-animated .hero .slot .val { opacity: 0; }
+}
 
 .problem { padding-block: clamp(80px, 14vh, 160px); }
 .problem .display { max-width: 17ch; font-size: clamp(30px, 4.6vw, 64px); }
@@ -578,8 +578,12 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
   .sentence { font-size: clamp(40px, 5.6vw, 88px); }
   .hero h1 { font-size: clamp(30px, 3.4vw, 50px); }
 
-  .scene-cal .scene-inner, .family .scene-inner { grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(32px, 5vw, 72px); }
-  .is-animated .scene-cal .scene-inner { grid-template-columns: 150px minmax(0, 1fr) auto; column-gap: clamp(24px, 3.2vw, 44px); }
+  .hero .scene-inner {
+    min-height: calc(100vh - var(--nav-h) - env(safe-area-inset-top, 0px));
+    min-height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
+    padding-block: clamp(24px, 5vh, 56px);
+  }
+  .chapter .scene-inner { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "story visual"; column-gap: clamp(32px, 5vw, 72px); }
 
   .duo { --duo-n: 270; width: calc(var(--duo-n) * 1.72px); height: calc(var(--duo-n) * 2.085px + 46px); }
   .duo .iphone { --pw-n: var(--duo-n); position: absolute; transform-origin: 50% 60%; margin: 0; }
@@ -597,30 +601,55 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
   .hero-chip { display: grid; left: calc(100% - 252px); top: calc(41% + var(--i) * 13.5%); }
 }
 
-.is-animated .scene-pinned .scene-inner {
-  height: calc(100vh - var(--nav-h) - env(safe-area-inset-top, 0px));
-  height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
-  padding-block: 0;
-}
-.is-animated .scene-pinned .story { position: relative; }
-.is-animated .scene-pinned .panel {
-  position: absolute;
+.visual { position: relative; min-width: 0; }
+.chapter .story { grid-area: story; }
+.chapter .visual { grid-area: visual; }
+.chapter .cal { grid-area: cal; }
+.replay { display: none; }
+
+.is-animated .chapter .panel { transition: opacity 0.45s ease; }
+.is-animated .chapter .panel:not(.on) { opacity: 0.3; }
+.is-animated .replay {
+  display: inline-flex;
+  justify-self: start;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  margin-top: 6px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text2);
+  font: 600 13.5px/1 var(--body);
+  cursor: pointer;
   opacity: 0;
-  transform: translateY(12px);
-  pointer-events: none;
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  visibility: hidden;
+  transition: opacity 0.3s ease, background-color 0.2s ease, color 0.2s ease;
 }
-.is-animated .scene-pinned .panel.on { opacity: 1; transform: none; pointer-events: auto; }
+.is-animated .replay svg { width: 15px; height: 15px; }
+.is-animated .replay:hover { background: var(--surface); color: var(--ink); }
+.is-animated .hero.played .replay { opacity: 1; visibility: visible; }
 
 @media (min-width: 900px) {
-  .is-animated .scene-pinned .story { height: 100%; }
-  .is-animated .scene-pinned .panel { inset: 0; align-content: center; }
-  .is-animated .scene-pinned .iphone { --pw: min(30vw, clamp(240px, calc((100svh - var(--nav-h) - env(safe-area-inset-top, 0px) - 56px) / 2.085), 340px)); }
-  .is-animated .duo {
-    --duo-pw: min(300px, calc((100svh - var(--nav-h) - env(safe-area-inset-top, 0px) - 110px) / 2.085), calc((100vw - 480px) / 1.72));
-    width: calc(var(--duo-pw) * 1.72);
-    height: calc(var(--duo-pw) * 2.085 + 46px);
+  .is-animated .chapter .scene-inner {
+    --phone-w: min(30vw, clamp(240px, calc((100svh - var(--nav-h) - env(safe-area-inset-top, 0px) - 56px) / 2.085), 340px));
+    --visual-h: calc(var(--phone-w) * 2.085);
+    --sticky-top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + max(16px, (100svh - var(--nav-h) - env(safe-area-inset-top, 0px) - var(--visual-h)) / 2));
+    align-items: start;
+    padding-block: 0;
   }
+  .is-animated .scene-cal .scene-inner { grid-template-columns: 150px minmax(0, 1fr) auto; grid-template-areas: "cal story visual"; column-gap: clamp(24px, 3.2vw, 44px); }
+  .is-animated .family .scene-inner {
+    --duo-pw: min(300px, calc((100svh - var(--nav-h) - env(safe-area-inset-top, 0px) - 110px) / 2.085), calc((100vw - 480px) / 1.72));
+    --visual-h: calc(var(--duo-pw) * 2.085 + 46px);
+  }
+  .is-animated .chapter .cal, .is-animated .chapter .visual { position: sticky; top: var(--sticky-top); align-self: start; }
+  .is-animated .chapter .cal { display: grid; }
+  .is-animated .chapter .iphone { --pw: var(--phone-w); }
+  .is-animated .chapter .story { gap: 0; padding-bottom: 14svh; }
+  .is-animated .chapter .panel { min-height: 78vh; min-height: 78svh; align-content: center; }
+  .is-animated .duo { width: calc(var(--duo-pw) * 1.72); height: calc(var(--duo-pw) * 2.085 + 46px); }
   .is-animated .duo .iphone { --pw: var(--duo-pw); }
   .is-animated .family-chip { display: grid; right: 28px; bottom: calc(100% - 58px); z-index: 5; }
 }
@@ -638,29 +667,43 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
 
   .scene-inner { gap: 32px; }
 
-  .is-animated .scene-pinned .scene-inner { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding-top: 14px; }
-  .is-animated .hero .scene-inner { display: grid; height: auto; padding-block: 14px 0; gap: 14px; }
-  .is-animated .hero-play {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-    height: calc(100vh - var(--nav-h) - env(safe-area-inset-top, 0px));
-    height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
-    padding-top: 12px;
-  }
-  .is-animated .scene-pinned .story { flex: none; height: var(--story-h, 190px); }
-  .is-animated .scene-pinned .panel { inset: 0 0 auto; gap: 8px; }
-  .is-animated .scene-pinned .panel .display { font-size: clamp(24px, 7vw, 32px); max-width: none; }
-  .is-animated .scene-pinned .panel p { font-size: 15px; }
-  .is-animated .scene-pinned .stage {
-    flex: 1 1 0;
-    min-height: 0;
+  .chapter .scene-inner { grid-template-areas: "story" "visual"; }
+
+  .is-animated .hero-play { gap: 22px; padding-top: 12px; }
+  .is-animated .hero-stage, .is-animated .chapter .stage {
     align-items: flex-start;
     overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top, 0px), #000 calc(100% - var(--fade-bottom, 0px)), transparent 100%);
     mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top, 0px), #000 calc(100% - var(--fade-bottom, 0px)), transparent 100%);
   }
-  .is-animated .scene-pinned .iphone { --pw: min(calc(100vw - 80px), 400px, max(310px, calc((100svh - var(--nav-h) - 250px) / 2.085))); }
+  .is-animated .hero-stage { height: clamp(320px, 62vh, 560px); height: clamp(320px, 62svh, 560px); }
+  .is-animated .hero .iphone, .is-animated .chapter .iphone { --pw: min(calc(100vw - 80px), 340px); }
+
+  .is-animated .chapter .scene-inner { display: block; padding-block: 0 8vh; }
+  .is-animated .chapter .visual {
+    position: sticky;
+    top: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+    z-index: 3;
+    margin-inline: calc(var(--gutter) * -1);
+    padding: 10px var(--gutter) 0;
+    background: var(--bg);
+  }
+  .is-animated .chapter .visual::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: linear-gradient(var(--bg), transparent);
+    pointer-events: none;
+  }
+  .is-animated .cal-strip { margin-bottom: 10px; }
+  .is-animated .chapter .stage { height: clamp(250px, 46vh, 430px); height: clamp(250px, 46svh, 430px); }
+  .is-animated .chapter .story { gap: 0; }
+  .is-animated .chapter .panel { min-height: 58vh; min-height: 58svh; padding-top: 40px; align-content: start; gap: 8px; }
+  .is-animated .chapter .panel .display { font-size: clamp(24px, 7vw, 32px); max-width: none; }
+  .is-animated .chapter .panel p { font-size: 15px; }
   .is-animated .duo .iphone { position: absolute; top: 0; left: 50%; margin-left: calc(var(--pw) / -2); }
   .is-animated .duo .fam-b { display: block; opacity: 0; }
 }
@@ -679,7 +722,7 @@ section[id] { scroll-margin-top: calc(var(--nav-h) + env(safe-area-inset-top, 0p
   html:not(.is-animated) .hero-sentence { grid-area: sentence; }
   html:not(.is-animated) .hero-copy { grid-area: copy; }
   html:not(.is-animated) .hero-stage { grid-area: stage; }
-  html:not(.is-animated) .scene-pinned:not(.hero) .scene-inner { grid-template-columns: minmax(0, 1fr) auto; column-gap: 32px; align-items: start; }
+  html:not(.is-animated) .chapter .scene-inner { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "story visual"; column-gap: 32px; align-items: start; }
 }
 
 .block { padding-block: clamp(72px, 12vh, 140px); }

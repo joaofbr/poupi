@@ -1,6 +1,5 @@
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ANIMATED_QUERY, WIDE_QUERY } from './motion'
+import { ANIMATED_QUERY, REDUCED_QUERY, WIDE_QUERY } from './motion'
 import { CLOSE_DAY, HERO_DAY, brl, entry, monthTotals, pad2 } from '../data/story'
 
 declare global {
@@ -9,14 +8,22 @@ declare global {
   }
 }
 
-interface Scene {
+interface Mode {
+  wide: boolean
+  reduced: boolean
+}
+
+interface Chapter {
+  timeline: gsap.core.Timeline
+  stops: string[]
   measure: () => void
   render: () => void
 }
 
-interface Mode {
-  wide: boolean
-  navBottom: () => number
+interface Runtime {
+  update: (instant?: boolean) => void
+  measure: () => void
+  dispose: () => void
 }
 
 const APP_WIDTH = 390
@@ -49,16 +56,6 @@ function fitScreens() {
     screen.dataset.k = scale
     screen.style.setProperty('--k', scale)
   })
-}
-
-function panels(root: ParentNode) {
-  const list = [...root.querySelectorAll<HTMLElement>('[data-panel]')]
-  let current = ''
-  return (id: string) => {
-    if (id === current) return
-    current = id
-    list.forEach((panel) => panel.classList.toggle('on', panel.dataset.panel === id))
-  }
 }
 
 function calendar(root: ParentNode) {
@@ -96,38 +93,17 @@ function pan(stage: HTMLElement, phone: HTMLElement, mode: Mode) {
   }
 }
 
-function measureStory(root: ParentNode, mode: Mode) {
-  const story = root.querySelector<HTMLElement>('.story')
-  if (!story) return
-  if (mode.wide) {
-    story.style.removeProperty('--story-h')
-    return
-  }
-  const heights = [...story.querySelectorAll<HTMLElement>('.panel')].map((panel) => panel.offsetHeight)
-  story.style.setProperty('--story-h', `${Math.ceil(Math.max(0, ...heights))}px`)
-}
-
-function pinned(trigger: Element, mode: Mode, length: number, scrub = 0.6): ScrollTrigger.Vars {
-  return {
-    trigger,
-    start: () => `top ${mode.navBottom()}px`,
-    end: () => `+=${Math.round(window.innerHeight * length)}`,
-    pin: true,
-    scrub,
-    anticipatePin: 1,
-    invalidateOnRefresh: true,
-  }
-}
-
 function rootOf(section: HTMLElement) {
   return need(section, '[data-root]')
 }
 
-function setupHero(section: HTMLElement, mode: Mode): Scene {
+function setupHero(section: HTMLElement, mode: Mode) {
   const root = rootOf(section)
   const phone = need(root, 'phone')
-  const view = pan(need(root, 'stage'), phone, mode)
+  const stage = need(root, 'stage')
+  const view = pan(stage, phone, mode)
   const screen = need(phone, '.screen')
+  const replay = need<HTMLButtonElement>(root, 'replay')
   const measure = () => {
     view.measure()
     view.apply(1)
@@ -149,8 +125,9 @@ function setupHero(section: HTMLElement, mode: Mode): Scene {
   }
 
   const timeline = gsap.timeline({
+    paused: true,
     defaults: { ease: 'power2.inOut' },
-    scrollTrigger: pinned(mode.wide ? section : need(root, 'play'), mode, mode.wide ? 1.05 : 1, 0.8),
+    onComplete: () => section.classList.add('played'),
   })
   const order = ['valor', 'desc', 'data', 'cartao']
   order.forEach((name, index) => {
@@ -200,17 +177,40 @@ function setupHero(section: HTMLElement, mode: Mode): Scene {
       { opacity: 1, y: 0, duration: 0.3, ease: 'power1.out', immediateRender: false },
       end + 0.8,
     )
-    .to({}, { duration: 0.25 })
   const chips = root.querySelectorAll('[data-chip]')
   if (chips.length && mode.wide) timeline.to(chips, { autoAlpha: 0, duration: 0.4, ease: 'none' }, end + 0.3)
 
-  return { measure, render: () => view.apply(1) }
+  let started = false
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (started || !entries.some((item) => item.intersectionRatio >= 0.5)) return
+      started = true
+      observer.disconnect()
+      gsap.delayedCall(0.5, () => timeline.play())
+    },
+    { threshold: 0.55 },
+  )
+  if (mode.reduced) timeline.progress(1, true)
+  else observer.observe(stage)
+
+  replay.addEventListener('click', () => {
+    section.classList.remove('played')
+    timeline.pause().progress(0).invalidate().play()
+  })
+
+  return {
+    measure,
+    render: () => view.apply(1),
+    dispose: () => {
+      observer.disconnect()
+      timeline.kill()
+    },
+  }
 }
 
-function setupMonth(section: HTMLElement, mode: Mode): Scene {
+function setupMonth(section: HTMLElement, mode: Mode): Chapter {
   const root = rootOf(section)
-  const stage = need(root, 'stage')
-  const view = pan(stage, need(root, 'phone'), mode)
+  const view = pan(need(root, 'stage'), need(root, 'phone'), mode)
   const rows = [...root.querySelectorAll<HTMLElement>('[data-id]')].map((node) => {
     const item = entry(node.dataset.id ?? '')
     return { node, day: item.day, cents: Math.round(item.amount * 100) }
@@ -222,7 +222,6 @@ function setupMonth(section: HTMLElement, mode: Mode): Scene {
   const overlay = need(root, 'overlay')
   const sheet = need(root, 'sheet')
   const chip = root.querySelector<HTMLElement>('[data-el="chip"]')
-  const showPanel = panels(root)
   const showDay = calendar(root)
   const state = { day: 0, sheet: 0, confirm: 0, closing: 0 }
 
@@ -256,30 +255,26 @@ function setupMonth(section: HTMLElement, mode: Mode): Scene {
       chip.style.visibility = shown > 0.01 ? 'visible' : 'hidden'
       chip.style.transform = `translateY(${(1 - shown) * 14}px)`
     }
-    showPanel(state.closing >= 0.15 ? 'c' : state.sheet >= 0.1 ? 'b' : 'a')
     showDay(today)
     view.apply(0.3 + 0.7 * up)
   }
-  const measure = () => {
-    measureStory(root, mode)
-    view.measure()
-  }
-  measure()
 
-  gsap
-    .timeline({ defaults: { ease: 'none' }, onUpdate: render, scrollTrigger: pinned(section, mode, 1.5) })
+  const timeline = gsap
+    .timeline({ paused: true, defaults: { ease: 'none' }, onUpdate: render })
     .to(state, { day: 4.99, duration: 1.1 })
+    .addLabel('a')
     .to(state, { day: 5, duration: 0.05 })
     .to(state, { sheet: 1, duration: 0.55, ease: 'power2.out' })
     .to(state, { confirm: 1, duration: 0.85, ease: 'power1.inOut' })
+    .addLabel('b')
     .to({}, { duration: 0.15 })
     .to(state, { closing: 1, duration: 0.7 })
-    .to({}, { duration: 0.25 })
+    .addLabel('c')
 
-  return { measure, render }
+  return { timeline, stops: ['a', 'b', 'c'], measure: () => view.measure(), render }
 }
 
-function setupFamily(section: HTMLElement, mode: Mode): Scene {
+function setupFamily(section: HTMLElement, mode: Mode): Chapter {
   const root = rootOf(section)
   const stage = need(root, 'stage')
   const phoneA = need(root, 'phone-a')
@@ -294,7 +289,6 @@ function setupFamily(section: HTMLElement, mode: Mode): Scene {
   const report = need(root, 'report')
   const chip = root.querySelector<HTMLElement>('[data-el="chip"]')
   const bars = [...root.querySelectorAll<HTMLElement>('[data-bar]')]
-  const showPanel = panels(root)
   const state = { sheet: 0, confirm: 0, swap: 0, report: 0 }
   let rowHeight = 62
 
@@ -334,32 +328,31 @@ function setupFamily(section: HTMLElement, mode: Mode): Scene {
     bars.forEach((bar) => {
       bar.style.width = `${Number(bar.dataset.bar) * grow}%`
     })
-    showPanel(state.report >= 0.3 ? 'c' : state.swap >= 0.3 ? 'b' : 'a')
     viewA.apply(1, front < 0.5)
     viewB.apply(0, front >= 0.5)
   }
   const measure = () => {
-    measureStory(root, mode)
     viewA.measure()
     viewB.measure()
     const row = fresh.firstElementChild as HTMLElement | null
     if (row?.offsetHeight) rowHeight = row.offsetHeight
   }
-  measure()
 
-  gsap
-    .timeline({ defaults: { ease: 'none' }, onUpdate: render, scrollTrigger: pinned(section, mode, 1.4) })
+  const timeline = gsap
+    .timeline({ paused: true, defaults: { ease: 'none' }, onUpdate: render })
     .to(state, { sheet: 1, duration: 0.45, ease: 'power2.out' })
+    .addLabel('a')
     .to(state, { confirm: 1, duration: 0.7, ease: 'power1.inOut' })
     .to(state, { swap: 1, duration: 0.7, ease: 'power1.inOut' })
+    .addLabel('b')
     .to({}, { duration: 0.15 })
     .to(state, { report: 1, duration: 0.7 })
-    .to({}, { duration: 0.25 })
+    .addLabel('c')
 
-  return { measure, render }
+  return { timeline, stops: ['a', 'b', 'c'], measure, render }
 }
 
-function setupCard(section: HTMLElement, mode: Mode): Scene {
+function setupCard(section: HTMLElement, mode: Mode): Chapter {
   const root = rootOf(section)
   const view = pan(need(root, 'stage'), need(root, 'phone'), mode)
   const marketWrap = need(root, 'market-row')
@@ -371,7 +364,6 @@ function setupCard(section: HTMLElement, mode: Mode): Scene {
   const chipTotal = root.querySelector<HTMLElement>('[data-el="chip-total"]')
   const market = Math.round(-entry('mercado-cartao').amount * 100)
   const uber = Math.round(-entry('uber').amount * 100)
-  const showPanel = panels(root)
   const showDay = calendar(root)
   const state = { market: 0, uber: 0 }
   let rowHeight = 62
@@ -395,27 +387,25 @@ function setupCard(section: HTMLElement, mode: Mode): Scene {
       chip.style.transform = `translateY(${(1 - shown) * 14}px)`
     }
     showDay(12 + Math.round(3 * range(state.uber, 0, 0.5)))
-    showPanel(state.uber >= 0.15 ? 'b' : 'a')
     view.apply(0.5)
   }
   const measure = () => {
-    measureStory(root, mode)
     view.measure()
     if (marketRow.offsetHeight) rowHeight = marketRow.offsetHeight
   }
-  measure()
 
-  gsap
-    .timeline({ defaults: { ease: 'none' }, onUpdate: render, scrollTrigger: pinned(section, mode, 1.1) })
+  const timeline = gsap
+    .timeline({ paused: true, defaults: { ease: 'none' }, onUpdate: render })
     .to(state, { market: 1, duration: 0.8, ease: 'power1.inOut' })
-    .to({}, { duration: 0.35 })
+    .addLabel('a')
+    .to({}, { duration: 0.2 })
     .to(state, { uber: 1, duration: 0.8, ease: 'power1.inOut' })
-    .to({}, { duration: 0.35 })
+    .addLabel('b')
 
-  return { measure, render }
+  return { timeline, stops: ['a', 'b'], measure, render }
 }
 
-function setupClose(section: HTMLElement, mode: Mode): Scene {
+function setupClose(section: HTMLElement, mode: Mode): Chapter {
   const root = rootOf(section)
   const phone = need(root, 'phone')
   const view = pan(need(root, 'stage'), phone, mode)
@@ -434,7 +424,6 @@ function setupClose(section: HTMLElement, mode: Mode): Scene {
     length: Number(node.dataset.length),
   }))
   const steps = [HERO_DAY, 18, 20, 22, 27].map((day) => ({ day, ...monthTotals(day) }))
-  const showPanel = panels(root)
   const showDay = calendar(root)
   const state = { rest: 0, close: 0 }
   let scroll = 0
@@ -461,27 +450,82 @@ function setupClose(section: HTMLElement, mode: Mode): Scene {
     })
     legend.style.opacity = String(range(state.close, 0.45, 0.85))
     showDay(today)
-    showPanel(state.close >= 0.12 ? 'b' : 'a')
     view.apply(0.15 + 0.85 * range(state.close, 0.05, 0.45))
   }
   const measure = () => {
-    measureStory(root, mode)
     view.measure()
     const scale = screen.clientWidth / APP_WIDTH
     if (!scale) return
     const bottom = (card.getBoundingClientRect().bottom - app.getBoundingClientRect().top) / scale + shift
     scroll = Math.max(0, Math.ceil(bottom + 14 - (APP_HEIGHT - APP_NAV)))
   }
-  measure()
 
-  gsap
-    .timeline({ defaults: { ease: 'none' }, onUpdate: render, scrollTrigger: pinned(section, mode, 1.3) })
+  const timeline = gsap
+    .timeline({ paused: true, defaults: { ease: 'none' }, onUpdate: render })
     .to(state, { rest: 1, duration: 1.1 })
+    .addLabel('a')
     .to({}, { duration: 0.15 })
     .to(state, { close: 1, duration: 1.1 })
-    .to({}, { duration: 0.3 })
+    .addLabel('b')
 
-  return { measure, render }
+  return { timeline, stops: ['a', 'b'], measure, render }
+}
+
+function runChapter(section: HTMLElement, chapter: Chapter, mode: Mode): Runtime {
+  const root = rootOf(section)
+  const visual = need(root, 'visual')
+  const steps = [...root.querySelectorAll<HTMLElement>('[data-panel]')]
+  const anchors = steps.map((step) => step.querySelector<HTMLElement>('.display') ?? step)
+  const times = chapter.stops.map((label) => chapter.timeline.labels[label])
+  let current = Number.NaN
+  let tween: gsap.core.Tween | null = null
+
+  const go = (index: number, instant: boolean) => {
+    if (index === current) return
+    current = index
+    steps.forEach((step, i) => step.classList.toggle('on', i === Math.max(0, index)))
+    const target = index < 0 ? 0 : times[index]
+    tween?.kill()
+    tween = null
+    if (instant || mode.reduced) {
+      chapter.timeline.time(target, true)
+      chapter.render()
+      return
+    }
+    const distance = Math.abs(target - chapter.timeline.time())
+    tween = chapter.timeline.tweenTo(target, {
+      duration: Math.min(1.6, Math.max(0.35, distance * 0.85)),
+      ease: 'power1.inOut',
+    })
+  }
+
+  const line = () => {
+    if (mode.wide) return window.innerHeight * 0.6
+    const bottom = visual.getBoundingClientRect().bottom
+    return bottom + (window.innerHeight - bottom) * 0.5
+  }
+
+  chapter.measure()
+  chapter.render()
+
+  return {
+    update(instant = false) {
+      const limit = line()
+      let index = -1
+      anchors.forEach((anchor, i) => {
+        if (anchor.getBoundingClientRect().top <= limit) index = i
+      })
+      go(index, instant)
+    },
+    measure() {
+      chapter.measure()
+      chapter.render()
+    },
+    dispose() {
+      tween?.kill()
+      chapter.timeline.kill()
+    },
+  }
 }
 
 function whenStylesReady(): Promise<void> {
@@ -503,18 +547,15 @@ export function startScenes() {
 }
 
 function runScenes() {
-  gsap.registerPlugin(ScrollTrigger)
-  ScrollTrigger.config({ ignoreMobileResize: true })
-
   const html = document.documentElement
-  const nav = document.querySelector<HTMLElement>('.nav')
   const scene = (name: string) => need(document, `[data-scene="${name}"]`)
   const roots = [...document.querySelectorAll<HTMLElement>('[data-root]')]
   const snapshots = roots.map((root) => root.innerHTML)
-  let scenes: Scene[] = []
+
+  fitScreens()
+  new ResizeObserver(() => fitScreens()).observe(document.body)
 
   const restore = () => {
-    scenes = []
     roots.forEach((root, index) => {
       root.innerHTML = snapshots[index]
     })
@@ -522,17 +563,8 @@ function runScenes() {
     fitScreens()
   }
 
-  ScrollTrigger.addEventListener('refreshInit', () => {
-    fitScreens()
-    scenes.forEach((item) => item.measure())
-  })
-  ScrollTrigger.addEventListener('refresh', () => scenes.forEach((item) => item.render()))
-
-  fitScreens()
-  new ResizeObserver(() => fitScreens()).observe(document.body)
-
-  gsap.matchMedia().add({ animated: ANIMATED_QUERY, wide: WIDE_QUERY }, (context) => {
-    const { animated, wide } = context.conditions as { animated: boolean; wide: boolean }
+  gsap.matchMedia().add({ animated: ANIMATED_QUERY, wide: WIDE_QUERY, reduced: REDUCED_QUERY }, (context) => {
+    const { animated, wide, reduced } = context.conditions as { animated: boolean; wide: boolean; reduced: boolean }
     if (!animated) {
       html.classList.remove('is-animated')
       fitScreens()
@@ -540,29 +572,48 @@ function runScenes() {
     }
     html.classList.add('is-animated')
     fitScreens()
-    const mode: Mode = { wide, navBottom: () => Math.round(nav?.getBoundingClientRect().bottom ?? 0) }
+    const mode: Mode = { wide, reduced }
+
+    let hero: ReturnType<typeof setupHero>
+    let chapters: Runtime[]
     try {
-      scenes = [
-        setupHero(scene('hero'), mode),
-        setupMonth(scene('month'), mode),
-        setupFamily(scene('family'), mode),
-        setupCard(scene('card'), mode),
-        setupClose(scene('close'), mode),
+      hero = setupHero(scene('hero'), mode)
+      chapters = [
+        runChapter(scene('month'), setupMonth(scene('month'), mode), mode),
+        runChapter(scene('family'), setupFamily(scene('family'), mode), mode),
+        runChapter(scene('card'), setupCard(scene('card'), mode), mode),
+        runChapter(scene('close'), setupClose(scene('close'), mode), mode),
       ]
-      scenes.forEach((item) => item.render())
     } catch (error) {
       console.error(error)
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill(true))
       restore()
       return
     }
-    return restore
-  })
 
-  const refresh = () => {
-    fitScreens()
-    ScrollTrigger.refresh()
-  }
-  document.fonts?.ready.then(refresh)
-  if (document.readyState !== 'complete') window.addEventListener('load', refresh, { once: true })
+    let frame = 0
+    const update = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => chapters.forEach((chapter) => chapter.update()))
+    }
+    const resize = () => {
+      fitScreens()
+      hero.measure()
+      hero.render()
+      chapters.forEach((chapter) => chapter.measure())
+      update()
+    }
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', resize)
+    document.fonts?.ready.then(resize)
+    chapters.forEach((chapter) => chapter.update(true))
+
+    return () => {
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', resize)
+      cancelAnimationFrame(frame)
+      hero.dispose()
+      chapters.forEach((chapter) => chapter.dispose())
+      restore()
+    }
+  })
 }

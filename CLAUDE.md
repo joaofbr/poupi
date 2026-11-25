@@ -294,13 +294,20 @@ Regras para não vazar dados entre contas:
   Mude ali; as cenas e o texto dos painéis calculam a partir dele, e os números precisam bater entre as cenas
   (dia 16: saldo R$ 3.995,10; dia 30: despesas R$ 2.497,70).
 - Duas montagens de cada cena:
-  - **Parada** (padrão do HTML): sem JS, com `prefers-reduced-motion` ou tela com menos de 600px de altura
-    (celular deitado). Painéis empilhados e o celular no estado final.
-  - **Animada**: classe `is-animated` no `<html>` (posta no `<head>` por `ANIMATED_QUERY`, de `scripts/motion.ts`),
-    cenas presas à rolagem em `scripts/scenes.ts` com `gsap.matchMedia`. O CSS sob `.is-animated` define o estado
-    inicial; ao trocar de modo (redimensionar), o script desfaz os pins e restaura o HTML original de cada cena.
-- No celular, a cena presa mostra o texto em cima (altura medida do maior painel) e o celular embaixo, recortado:
-  a "câmera" desce pelo celular (`pan` em `scenes.ts`) em vez de encolhê-lo, para o texto do app continuar legível.
+  - **Parada** (padrão do HTML): sem JS ou tela com menos de 600px de altura (celular deitado). Painéis empilhados
+    e o celular no estado final.
+  - **Animada**: classe `is-animated` no `<html>` (posta no `<head>` por `ANIMATED_QUERY`, de `scripts/motion.ts`).
+    **Rolagem livre, nada prende a tela** (sem ScrollTrigger, de propósito: as cenas presas davam trancos com mouse
+    de roda e saíam de sincronia no iPhone). O celular fica fixo com `position: sticky` (ao lado no desktop, num
+    bloco no topo no celular) e cada etapa de texto que passa da linha de ativação leva a linha do tempo da cena até
+    o rótulo daquela etapa (`tweenTo` em `runChapter`), em tempo, não preso à rolagem. Rolar rápido só leva ao estado
+    certo. Com movimento reduzido, a mesma montagem com trocas instantâneas.
+  - O topo toca sozinho uma vez quando o celular dele fica mais da metade visível; "Ver de novo" repete.
+  - Ao trocar de modo (redimensionar), o script restaura o HTML original de cada cena e monta de novo.
+- No celular, o bloco fixo mostra a faixa do mês e uma janela do celular, e a "câmera" desce pelo celular (`pan` em
+  `scenes.ts`) em vez de encolhê-lo, para o texto do app continuar legível. Os textos passam por baixo do bloco.
+- O script das cenas espera as folhas de estilo (`whenStylesReady`): o Safari pode rodar o módulo antes de aplicar o
+  CSS, e a animação gravaria o estado sem estilo como ponto de partida.
 - A tela do app é desenhada em 390×844 e escalada por `--k` (largura da tela ÷ 390). Sem JS, `--k` sai de `--pw-n`.
 - Páginas legais: `/termos/` e `/privacidade/` (layout `src/layouts/Legal.astro`). O texto descreve o que o app faz
   de verdade (dados guardados, validade de sessão e convites, provedores Render, Neon, Cloudflare e Brevo, nenhum
@@ -311,8 +318,9 @@ Regras para não vazar dados entre contas:
 - Ainda não há CNPJ nem redes sociais: o rodapé não mostra esses itens. O e-mail de contato (`CONTACT_EMAIL`) e o
   nome do responsável (`OWNER_NAME`) ficam em `src/data/site.ts`; enquanto forem `null`, aparece "a definir".
 - Revisão visual: `astro preview` e capturas com `playwright-core` em 360×640, 390×664 (iPhone com a barra do Safari),
-  768×1024, 844×390, 1024×768, 1366×657, 1440×900 e 1920×1080, nos dois temas e com movimento reduzido. Confira
-  rolagem horizontal zero e o conteúdo das cenas presas dentro da tela.
+  768×1024, 844×390, 1024×768, 1366×657, 1440×900 e 1920×1080, nos dois temas e com movimento reduzido, e no WebKit
+  (`webkit` do Playwright com `devices['iPhone 12']`) para pegar diferenças do Safari. Confira rolagem horizontal zero,
+  o estado do celular em cada etapa e a ida rápida até o fim e de volta ao topo.
 - `public/og.png` é uma captura do topo; mudou o topo, gere de novo.
 - Cloudflare Pages `poupi-site`: raiz `site`, build `npm run build`, saída `dist`, `NODE_VERSION=24` (o Astro 7
   exige Node 22.23.4 ou mais). O Cloudflare instala com `npm ci` do npm 10, que recusa lock gerado pelo npm 11

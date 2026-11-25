@@ -15,8 +15,75 @@ const lucasShare = shareOf(rent, 'lucas')
 const report = byMember(10)
 ---
 
-<section class="scene scene-pinned family" id="familia" aria-labelledby="family-title" data-scene="family">
+<section class="scene chapter family" id="familia" aria-labelledby="family-title" data-scene="family">
   <div class="wrap scene-inner" data-root>
+    <div class="visual" data-el="visual">
+      <div class="stage duo" data-el="stage">
+        <Phone class="fam-a" label={`Celular da Marina confirmando o aluguel de ${brl(Math.abs(rent.amount))}, dividido com Lucas Costa: ${brl(Math.abs(lucasShare))} para cada`} data-el="phone-a">
+          <AppHeader title="Dashboard" />
+          <div class="a-body">
+            <MonthPill />
+            <QuickBox text="aluguel 1600 dividido com lucas" size={14} />
+          </div>
+          <AppNav active="inicio" />
+          <div class="a-overlay is-up" data-el="overlay"></div>
+          <div class="a-sheet is-up" data-el="sheet">
+            <div class="a-sheet-head">Confirmar lançamento<span><Icon name="x" /></span></div>
+            <div class="a-sheet-body">
+              <div class="a-said"><Icon name="message" />“aluguel 1600 dividido com lucas”</div>
+              <span class="a-kind out">Despesa</span>
+              <div class="a-amount">{brl(Math.abs(rent.amount))}</div>
+              <div class="a-desc">{rent.title}</div>
+              <dl class="a-rows">
+                <div><dt>Categoria</dt><dd><span class="a-cat"><i style={`background:color-mix(in srgb, ${rentCategory.color} 16%, var(--a-surface));color:${rentCategory.color}`}><Icon name={rentCategory.icon} /></i>{rentCategory.name}</span></dd></div>
+                <div><dt>Data</dt><dd>Hoje, 10 de nov. de 2026</dd></div>
+                <div><dt>De quem é</dt><dd>Eu e {MEMBERS.lucas.name}<small>{brl(Math.abs(lucasShare))} para cada</small></dd></div>
+              </dl>
+            </div>
+            <div class="a-actions"><span class="adj"><Icon name="pencil" />Ajustar</span><span class="ok"><Icon name="check" />Confirmar</span></div>
+          </div>
+          <div class="a-toast" data-el="toast"><Icon name="check-circle" />Lançamento salvo</div>
+        </Phone>
+        <Phone class="fam-b" label={`Celular do Lucas: o aluguel aparece com a parte dele, ${brl(Math.abs(lucasShare))} de ${brl(Math.abs(rent.amount))}`} data-el="phone-b">
+          <div class="f-screen" data-el="list">
+            <AppHeader title="Transações" />
+            <div class="a-body">
+              <MonthPill />
+              <div class="a-filters"><span>Tipo: todos</span><span class="hl">{MEMBERS.lucas.name}</span><span>Pagamento: todos</span></div>
+              <div class="a-card a-list">
+                <div class="f-new" data-el="new-row"><Row entry={rent} avatars share={lucasShare} /></div>
+                <Row entry={lucasSalary} avatars />
+              </div>
+            </div>
+            <AppNav active="transacoes" />
+          </div>
+          <div class="f-screen f-report" data-el="report">
+            <AppHeader title="Relatórios" />
+            <div class="a-body">
+              <MonthPill />
+              <div class="a-tabs"><span>Resumo mensal</span><span>Por categoria</span><span class="on">Por integrante</span></div>
+              <div class="a-card a-report">
+                <div class="a-report-head"><b>Despesas por integrante</b><small>Total {brl(report.total)}</small></div>
+                {report.members.map((member) => (
+                  <div class="a-member">
+                    <span class="av big" style={`--c:${member.color}`}>{member.initials}</span>
+                    <b>{member.name}</b>
+                    <small>{member.percent}%</small>
+                    <span>{brl(member.value)}</span>
+                    <i class="bar"><i data-bar={member.percent} style={`width:${member.percent}%;background:${member.color}`}></i></i>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <AppNav active="relatorios" />
+          </div>
+        </Phone>
+        <div class="chip glass family-chip" data-el="chip">
+          <small>Parte de cada um</small>
+          <span>{brl(Math.abs(lucasShare))} <span class="from">de {brl(Math.abs(rent.amount))}</span></span>
+        </div>
+      </div>
+    </div>
     <div class="story">
       <h2 class="sr-only-text" id="family-title">Plano família</h2>
       <div class="panel on" data-panel="a">
@@ -33,71 +100,6 @@ const report = byMember(10)
         <span class="kicker">Dia 10 · Relatórios</span>
         <h3 class="display">Quanto cada um gastou.</h3>
         <p>O relatório por integrante mostra o peso de cada pessoa nas contas da casa, em qualquer dia do mês. Sem planilha compartilhada e sem <q>depois eu te passo</q>.</p>
-      </div>
-    </div>
-    <div class="stage duo" data-el="stage">
-      <Phone class="fam-a" label={`Celular da Marina confirmando o aluguel de ${brl(Math.abs(rent.amount))}, dividido com Lucas Costa: ${brl(Math.abs(lucasShare))} para cada`} data-el="phone-a">
-        <AppHeader title="Dashboard" />
-        <div class="a-body">
-          <MonthPill />
-          <QuickBox text="aluguel 1600 dividido com lucas" size={14} />
-        </div>
-        <AppNav active="inicio" />
-        <div class="a-overlay is-up" data-el="overlay"></div>
-        <div class="a-sheet is-up" data-el="sheet">
-          <div class="a-sheet-head">Confirmar lançamento<span><Icon name="x" /></span></div>
-          <div class="a-sheet-body">
-            <div class="a-said"><Icon name="message" />“aluguel 1600 dividido com lucas”</div>
-            <span class="a-kind out">Despesa</span>
-            <div class="a-amount">{brl(Math.abs(rent.amount))}</div>
-            <div class="a-desc">{rent.title}</div>
-            <dl class="a-rows">
-              <div><dt>Categoria</dt><dd><span class="a-cat"><i style={`background:color-mix(in srgb, ${rentCategory.color} 16%, var(--a-surface));color:${rentCategory.color}`}><Icon name={rentCategory.icon} /></i>{rentCategory.name}</span></dd></div>
-              <div><dt>Data</dt><dd>Hoje, 10 de nov. de 2026</dd></div>
-              <div><dt>De quem é</dt><dd>Eu e {MEMBERS.lucas.name}<small>{brl(Math.abs(lucasShare))} para cada</small></dd></div>
-            </dl>
-          </div>
-          <div class="a-actions"><span class="adj"><Icon name="pencil" />Ajustar</span><span class="ok"><Icon name="check" />Confirmar</span></div>
-        </div>
-        <div class="a-toast" data-el="toast"><Icon name="check-circle" />Lançamento salvo</div>
-      </Phone>
-      <Phone class="fam-b" label={`Celular do Lucas: o aluguel aparece com a parte dele, ${brl(Math.abs(lucasShare))} de ${brl(Math.abs(rent.amount))}`} data-el="phone-b">
-        <div class="f-screen" data-el="list">
-          <AppHeader title="Transações" />
-          <div class="a-body">
-            <MonthPill />
-            <div class="a-filters"><span>Tipo: todos</span><span class="hl">{MEMBERS.lucas.name}</span><span>Pagamento: todos</span></div>
-            <div class="a-card a-list">
-              <div class="f-new" data-el="new-row"><Row entry={rent} avatars share={lucasShare} /></div>
-              <Row entry={lucasSalary} avatars />
-            </div>
-          </div>
-          <AppNav active="transacoes" />
-        </div>
-        <div class="f-screen f-report" data-el="report">
-          <AppHeader title="Relatórios" />
-          <div class="a-body">
-            <MonthPill />
-            <div class="a-tabs"><span>Resumo mensal</span><span>Por categoria</span><span class="on">Por integrante</span></div>
-            <div class="a-card a-report">
-              <div class="a-report-head"><b>Despesas por integrante</b><small>Total {brl(report.total)}</small></div>
-              {report.members.map((member) => (
-                <div class="a-member">
-                  <span class="av big" style={`--c:${member.color}`}>{member.initials}</span>
-                  <b>{member.name}</b>
-                  <small>{member.percent}%</small>
-                  <span>{brl(member.value)}</span>
-                  <i class="bar"><i data-bar={member.percent} style={`width:${member.percent}%;background:${member.color}`}></i></i>
-                </div>
-              ))}
-            </div>
-          </div>
-          <AppNav active="relatorios" />
-        </div>
-      </Phone>
-      <div class="chip glass family-chip" data-el="chip">
-        <small>Parte de cada um</small>
-        <span>{brl(Math.abs(lucasShare))} <span class="from">de {brl(Math.abs(rent.amount))}</span></span>
       </div>
     </div>
   </div>
